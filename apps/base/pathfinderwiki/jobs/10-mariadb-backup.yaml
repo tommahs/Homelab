@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pathfinderwiki-mariadb-backup-job
+  namespace: pathfinderwiki
+spec:
+  template:
+    spec:
+      containers:
+      - name: mariadb-dump
+        image: mariadb:11.7.2-noble
+        command:
+          - /bin/bash
+          - -c
+          - |
+            # Wait for MariaDB to be fully initialized
+            until mariadb -h pathfinderwiki-mariadb-service -u $MARIADB_USER -p$MARIADB_PASSWORD -e "SELECT 1"; do
+              echo "Waiting for MariaDB to be ready..."
+              sleep 5
+            done
+            
+            echo "MariaDB is ready. Starting backup procedure..."
+            
+            
+            # For compressed backup
+            mariadb-dump -h pathfinderwiki-mariadb-service -u $MARIADB_USER -p$MARIADB_PASSWORD $MARIADB_DATABASE | gzip > /backup/pathfinderwiki_$(date +\%Y-\%m-\%d).sql.gz
+
+            echo "Backup completed successfully!"
+        env:
+        - name: MARIADB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: username
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: password
+        - name: MARIADB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: database
+        volumeMounts:
+        - name: backup-volume
+          mountPath: /backup
+      volumes:
+      - name: backup-volume
+        persistentVolumeClaim:
+          claimName: pathfinderwiki-mariadb-backup-pvc
+      restartPolicy: OnFailure

@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pathfinderwiki-php-fpm
+  namespace: pathfinderwiki
+spec:
+  selector:
+    matchLabels:
+      app: pathfinderwiki-php-fpm
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pathfinderwiki-php-fpm
+    spec:
+      containers:
+        - name: php-fpm
+          image: joseluisq/php-fpm:8.3
+          env:
+            - name: ENV_SUBSTITUTION_ENABLE
+              value: "true"
+            - name: PHP_MEMORY_LIMIT
+              value: "512M"
+            - name: PHP_FPM_LISTEN
+              value: "9090"
+            - name: PHP_SESSION_GC_MAXLIFETIME
+              value: "7200"
+            # Database connection details using the secret
+            - name: DB_HOST
+              value: "pathfinderwiki-mariadb-service"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: password
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: database
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: pathfinderwiki-content
+              mountPath: /usr/share/nginx/html 
+      volumes:
+        - name: pathfinderwiki-content
+          persistentVolumeClaim:
+            claimName: pathfinderwiki-content-pvc

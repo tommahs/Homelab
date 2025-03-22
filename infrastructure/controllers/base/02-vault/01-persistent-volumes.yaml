@@ -1,0 +1,41 @@
+---
+# 01-persistent-volumes.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: vault-data
+  namespace: vault-system
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: vault-data
+  nfs:
+    path: /data/nfs/vault/data
+    server: 192.168.122.1
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: vault-backup
+  namespace: vault-system
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: vault-backup
+  nfs:
+    path: /data/nfs/vault/backup
+    server: 192.168.122.1
+  mountOptions:
+    - hard
+    - nfsvers=4.1

@@ -1,0 +1,14 @@
+---
+# PVC for wiki content (if not already created)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pathfinderwiki-content-pvc
+  namespace: pathfinderwiki
+spec:
+  storageClassName: pathfinderwiki-content
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi

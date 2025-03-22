@@ -1,0 +1,13 @@
+---
+# Service to expose PHP-FPM
+apiVersion: v1
+kind: Service
+metadata:
+  name: pathfinderwiki-php-fpm-service
+  namespace: pathfinderwiki
+spec:
+  selector:
+    app: pathfinderwiki-php-fpm
+  ports:
+    - port: 9090
+      targetPort: 9090

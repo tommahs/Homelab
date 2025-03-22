@@ -1,0 +1,24 @@
+---
+# 03-vault-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-config
+  namespace: vault-system
+data:
+  config.hcl: |
+    ui = true
+    
+    storage "file" {
+      path = "/vault/data"
+    }
+
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      tls_disable = 1  # Enable TLS in production
+    }
+    
+    api_addr = "http://vault.vault-system:8200"
+
+    seal "shamir" {
+    }

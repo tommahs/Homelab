@@ -1,0 +1,38 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vaultwarden-backup
+  namespace: vaultwarden
+spec:
+  schedule: "0 * * * *"  # Hourly backup
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+            - name: vaultwarden-storage
+              persistentVolumeClaim:
+                claimName: vaultwarden-data-pvc
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: vaultwarden-backup-pvc
+          containers:
+            - name: backup
+              image: alpine:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting Vaultwarden backup..."
+                  mkdir -p /backup/
+                  timestamp=$(date +%Y%m%d-%H%M%S)
+                  tar -czvf /backup/vaultwarden-backup-$timestamp.tar.gz /data
+                  echo "Backup completed: /backup/vaultwarden-backup-$timestamp.tar.gz"
+              volumeMounts:
+                - name: vaultwarden-storage
+                  mountPath: /data
+                - name: backup-storage
+                  mountPath: /backup
+

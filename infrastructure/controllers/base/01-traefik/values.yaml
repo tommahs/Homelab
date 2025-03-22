@@ -1,0 +1,136 @@
+# Use host network to bind directly to VM's network interface
+#hostNetwork: true
+
+# Set number of replicas
+deployment:
+  replicas: 6
+  # Ensure pods are spread across nodes
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - traefik
+          topologyKey: kubernetes.io/hostname
+
+# Ensure Traefik only runs on worker nodes
+nodeSelector:
+  node-role.kubernetes.io/worker: ""
+
+# Configure tolerations if needed
+tolerations: []
+
+# Configure global settings
+global:
+  checknewversion: false
+  sendanonymoususage: false
+
+# Define entry points for HTTP and HTTPS
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+  traefik:
+    address: ":9000"
+# Configure ports to bind to host ports 80 and 443
+ports:
+  web:
+    port: 80
+    expose: {}
+    exposedPort: 80
+    protocol: TCP
+  websecure:
+    port: 443
+    expose: {}
+    exposedPort: 443
+    protocol: TCP
+  traefik:
+    port: 9000
+    expose: {}
+    exposedPort: 9000
+    protocol: TCP
+
+# Security settings to allow binding to privileged ports
+securityContext:
+  capabilities:
+    drop: [ALL]
+    add: [NET_BIND_SERVICE]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: false
+  runAsUser: 0
+
+# Enable kubernetes integration
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+  kubernetesIngress:
+    enabled: true
+    publishedService:
+      enabled: true
+
+# Enable RBAC
+rbac:
+  enabled: true
+
+# Disable the default service as we're using hostNetwork
+service:
+  enabled: false
+
+# Basic dashboard config
+dashboard:
+  enabled: true
+
+# Traefik IngressRoute configuration
+# Configure dashboard access
+ingressRoute:
+  dashboard:
+    enabled: true
+    # Use the traefik entrypoint
+    entryPoints: ["traefik"]
+    # No host rule - accessible via IP:9000
+    annotations: {}
+    middlewares: []
+    tls: {}
+######
+# This block should be in grafana's base
+#ingressRoute:
+#  grafana:
+#    # This will create a Traefik IngressRoute CRD
+#    enabled: true
+#    # Use both HTTP and HTTPS endpoints
+#    entryPoints: ["web", "websecure"]
+#    # Your domain configuration
+#    match: Host(`grafana-k8s.tommahs.nl`)
+#    # Point to the Grafana service
+#    service:
+#      name: grafana
+#      port: 3000
+##############
+
+# Additional experimental features required for dashboard
+api:
+  dashboard: true
+
+# Add to your existing Traefik configuration
+persistence:
+  enabled: true
+  name: certificates
+  existingClaim: certificates
+  accessMode: ReadWriteMany
+  size: 128Mi
+  path: /data
+
+# Configure the certificate resolvers
+additionalArguments:
+  - "--ping=true"

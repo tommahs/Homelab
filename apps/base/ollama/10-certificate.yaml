@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: open-webui-k8s-tommahs-nl-tls
+  namespace: ollama
+spec:
+  secretName: open-webui-k8s-tommahs-nl-tls
+  dnsNames:
+    - open-webui.k8s.tommahs.nl
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

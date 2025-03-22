@@ -1,0 +1,16 @@
+---
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: n8n
+resources:
+  - 00-namespace.yaml
+  - base/03-deployment.yaml
+  - base/04-service.yaml
+  - postgres/02-config-map.yaml
+  - postgres/03-deployment.yaml
+  - postgres/04-service.yaml
+  - 09-ingress-route.yaml
+  - 10-certificate.yaml
+  - 10-ingress-middleware.yaml
+  
