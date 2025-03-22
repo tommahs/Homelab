@@ -36,15 +36,6 @@ resource "libvirt_volume" "ceph_data_disk" {
   size   = 52428800  # 50GB in KB
 }
 
-# Define second disk for each VM (50GB nonformatted disk)
-resource "libvirt_volume" "ceph_data_disk" {
-  count  = 3
-  name   = "ceph${count.index + 1}-data.qcow2"
-  pool   = "homelab_ceph"
-  format = "qcow2"
-  size   = 52428800  # 50GB in KB
-}
-
 # Define the node using the new 50GB disk
 resource "libvirt_domain" "ceph_node" {
   count    = 3
