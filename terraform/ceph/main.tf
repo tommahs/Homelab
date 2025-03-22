@@ -81,7 +81,7 @@ variable "disksize" {
 resource "libvirt_cloudinit_disk" "ceph_cloudinit" {
   count     = 3
   name      = "cloudinit-ceph${count.index + 1}"
-  pool      = "homelab_k8s"
+  pool      = "homelab_ceph"
 
   user_data = <<EOF
 #cloud-config
