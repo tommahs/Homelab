@@ -25,6 +25,7 @@ resource "libvirt_volume" "master_disk" {
   pool   = "homelab_k8s"
   source = libvirt_volume.base_arch_qcow2.id
   format = "qcow2"
+  size   = 41943040
 }
 # Define the master node using the new 50GB disk
 resource "libvirt_domain" "master_node" {
@@ -115,12 +116,14 @@ EOF
 #########################
 # Define 6 Worker Nodes
 #########################
+
 resource "libvirt_volume" "worker_disk" {
   count  = 6
   name   = "worker-k8s-${count.index + 1}.qcow2"
   pool   = "homelab_k8s"
   source = libvirt_volume.base_arch_qcow2.id
   format = "qcow2"
+  size   = 41943040
 }
 
 resource "libvirt_domain" "worker_node" {
@@ -201,14 +204,16 @@ EOF
 }
 
 ######################################
-# Define Worker Nodes With Extra Ram
+# Define Worker Nodes With Extra RAM
 ######################################
+
 resource "libvirt_volume" "worker_RAM_disk" {
   count  = 1
   name   = "worker-k8s-RAM${count.index + 1}.qcow2"
   pool   = "homelab_k8s"
   source = libvirt_volume.base_arch_qcow2.id
   format = "qcow2"
+  size   = 41943040
 }
 
 resource "libvirt_domain" "worker_node_RAM" {
