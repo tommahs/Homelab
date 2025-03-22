@@ -1,0 +1,28 @@
+---
+# 03-backup-pvc.yaml // pathfinderwiki-mariadb-data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pathfinderwiki-mariadb-data-0-pvc
+  namespace: pathfinderwiki
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: pathfinderwiki-mariadb-data-storage
+  resources:
+    requests:
+      storage: 20Gi
+---
+# 03-backup-pvc.yaml // pathfinderwiki-mariadb-backup
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pathfinderwiki-mariadb-backup-pvc
+  namespace: pathfinderwiki
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: pathfinderwiki-mariadb-backup-storage
+  resources:
+    requests:
+      storage: 50Gi

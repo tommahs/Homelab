@@ -1,0 +1,14 @@
+---
+# 03-backup-pvc.yaml // pathfinderwiki-mariadb-data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: certificates
+  namespace: traefik
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: certificates
+  resources:
+    requests:
+      storage: 128Mi

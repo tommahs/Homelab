@@ -1,0 +1,17 @@
+---
+# 04-vault-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: vault-system
+spec:
+  selector:
+    app: vault
+  ports:
+  - name: http
+    port: 8200
+    targetPort: 8200
+  - name: internal
+    port: 8201
+    targetPort: 8201

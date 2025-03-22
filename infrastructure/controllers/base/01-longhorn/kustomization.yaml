@@ -1,0 +1,12 @@
+# base/kustomization.yaml
+resources:
+  - 01-cluster-role-binding.yaml
+  - 01-cluster-role.yaml
+  - 01-namespace.yaml
+  - 02-config-map.yaml
+  - 02-custom-resource-definition.yaml
+  - 03-priorityclass.yaml
+  - 03-service-account.yaml
+  - 04-daemonset.yaml
+  - 04-deployment.yaml
+  - 05-services.yaml

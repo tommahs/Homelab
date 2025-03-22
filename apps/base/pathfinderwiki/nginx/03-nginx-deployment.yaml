@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pathfinderwiki-nginx
+  namespace: pathfinderwiki
+spec:
+  selector:
+    matchLabels:
+      app: pathfinderwiki-nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pathfinderwiki-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.17-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: wiki-content
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: pathfinderwiki-nginx-config
+        - name: wiki-content
+          persistentVolumeClaim:
+            claimName: pathfinderwiki-content-pvc

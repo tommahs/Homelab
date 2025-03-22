@@ -1,0 +1,16 @@
+---
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vault-system
+resources:
+- 00-namespace.yaml
+- 01-cluster-role.yaml
+- 01-persistent-volumes.yaml
+- 01-service-account.yaml
+- 02-configmap.yaml
+- 02-cluster-role-binding.yaml
+- 02-persistent-volume-claims.yaml
+- 03-deployment.yaml
+- 04-service.yaml
+- 06-backup-cronjob.yaml

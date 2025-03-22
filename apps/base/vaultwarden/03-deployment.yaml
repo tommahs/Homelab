@@ -1,0 +1,35 @@
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vaultwarden
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+    spec:
+      containers:
+        - name: vaultwarden
+          image: vaultwarden/server:1.32.7-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: vaultwarden-data-storage
+              mountPath: /data
+            - name: vaultwarden-backup-storage
+              mountPath: /backup
+      volumes:
+        - name: vaultwarden-data-storage
+          persistentVolumeClaim:
+            claimName: vaultwarden-data-pvc
+        - name: vaultwarden-backup-storage
+          persistentVolumeClaim:
+            claimName: vaultwarden-backup-pvc
+

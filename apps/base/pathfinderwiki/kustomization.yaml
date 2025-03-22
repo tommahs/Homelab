@@ -1,0 +1,28 @@
+---
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: pathfinderwiki
+resources:
+  - base/00-namespace.yaml
+  - base/01-pathfinderwiki-pv.yaml
+  - base/01-role.yaml
+  - base/01-service-account.yaml
+  - base/01-storage-class.yaml
+  - base/01-vault-configmap.yaml
+  - base/02-pathfinder-pvc.yaml
+  - base/02-role-binding.yaml
+  - mariadb/01-mariadb-pv.yaml
+  - mariadb/02-mariadb-pvc.yaml
+  - mariadb/03-deployment.yaml
+  - mariadb/07-service.yaml
+  - php-fpm/03-phpfpm-deployment.yaml
+  - php-fpm/04-phpfpm-service.yaml
+  - nginx/02-nginx-configmap.yaml
+  - nginx/03-nginx-deployment.yaml
+  - nginx/04-nginx-service.yaml
+  - 09-ingress-route.yaml
+  - 10-certificate.yaml
+  - 10-ingress-middleware.yaml
+  - jobs/09-mariadb-restore.yaml
+  - jobs/10-mariadb-cronjob-backup.yaml

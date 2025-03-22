@@ -1,0 +1,17 @@
+---
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: pathfinderwiki
+resources:
+  - 00-crds.yaml
+  - 00-namespace.yaml
+  - 01-cluster-role.yaml
+  - 01-role.yaml
+  - 01-service-accounts.yaml
+  - 02-cluster-role-binding.yaml
+  - 02-role-binding.yaml
+  - 03-deployment.yaml
+  - 04-service.yaml
+  - 05-cilium-network-policy.yaml 
+  - 10-cluster-issuer.yaml

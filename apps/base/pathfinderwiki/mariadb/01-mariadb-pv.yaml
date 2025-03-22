@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pathfinderwiki-mariadb-data-0-pv
+  namespace: pathfinderwiki
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: pathfinderwiki-mariadb-data-storage
+  nfs:
+    path: /data/nfs/pathfinderwiki/mariadb-data/0
+    server: 192.168.122.1
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pathfinderwiki-mariadb-backup-pv
+  namespace: pathfinderwiki
+spec:
+  capacity:
+    storage: 50Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: pathfinderwiki-mariadb-backup-storage
+  nfs:
+    path: /data/nfs/pathfinderwiki/mariadb-backup
+    server: 192.168.122.1
+  mountOptions:
+    - hard
+    - nfsvers=4.1

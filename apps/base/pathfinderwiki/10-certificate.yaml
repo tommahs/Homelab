@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pathfinderwiki-tls
+  namespace: pathfinderwiki
+spec:
+  secretName: pathfinderwiki-tls
+  dnsNames:
+    - pathfinderwiki.tommahs.nl
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

@@ -1,0 +1,45 @@
+---
+# 07-vault-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-db-config
+  namespace: pathfinderwiki
+data:
+  init-vault.sh: |
+    #!/bin/sh
+    # Enable database secrets engine
+    vault secrets enable -path=database database
+    
+    # Create policy for secret rotation
+    vault policy write pathfinderwiki-mariadb-policy - <<EOF
+    path "database/creds/pathfinderwiki-mariadb-role" {
+      capabilities = ["read"]
+    }
+    EOF
+
+    # Configure Kubernetes auth role
+    vault write auth/kubernetes/role/pathfinderwiki-mariadb-role \
+      bound_service_account_names=vault-auth \
+      bound_service_account_namespaces=pathfinderwiki \
+      policies=pathfinderwiki-mariadb-policy \
+      ttl=1h
+
+    # Configure database secret rotation
+    vault write database/config/pathfinderwiki-mariadb \
+      plugin_name=mysql-database-plugin \
+      connection_url="{{username}}:{{password}}@tcp(pathfinderwiki-mariadb-cluster-primary.pathfinderwiki.svc.cluster.local:3306)/" \
+      allowed_roles="pathfinderwiki-mariadb-role" \
+      username="root" \
+      password="${ROOT_PASSWORD}"
+
+    # Create role for password rotation
+    vault write database/roles/pathfinderwiki-mariadb-role \
+      db_name=pathfinderwiki-mariadb \
+      creation_statements="CREATE USER IF NOT EXISTS 'pathfinderwiki'@'%' IDENTIFIED BY '{{password}}'; \
+        GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, \
+        CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, \
+        CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER \
+        ON pathfinderwiki.* TO 'pathfinderwiki'@'%';" \
+      default_ttl="720h" \
+      max_ttl="720h"

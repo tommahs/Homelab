@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pathfinderwiki-mariadb
+  namespace: pathfinderwiki
+spec:
+  serviceName: pathfinderwiki-mariadb-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pathfinderwiki-mariadb
+  template:
+    metadata:
+      labels:
+        app: pathfinderwiki-mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:11.7.2-noble
+          env:
+            - name: MARIADB_RANDOM_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: randomrootpassword
+            - name: MARIADB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: username
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: password
+            - name: MARIADB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: database
+          ports:
+            - containerPort: 3306

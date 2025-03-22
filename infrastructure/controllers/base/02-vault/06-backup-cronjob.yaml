@@ -1,0 +1,65 @@
+---
+# 06-backup-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-backup
+  namespace: vault-system
+spec:
+  schedule: "0 2 * * *"  # Run at 2 AM every day
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: vault-backup
+            image: vault:1.13.3
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Wait for Vault to be available
+              until nc -z vault 8200; do
+                echo "Waiting for Vault to be ready..."
+                sleep 5
+              done
+              
+              # Create backup directory with timestamp
+              BACKUP_DIR="/backup/vault-$(date +%Y%m%d-%H%M%S)"
+              mkdir -p $BACKUP_DIR
+              
+              # Perform Vault backup
+              # Note: This requires VAULT_TOKEN to be set
+              if [ -n "$VAULT_TOKEN" ]; then
+                vault operator raft snapshot save $BACKUP_DIR/vault.snap
+                
+                # Create metadata file
+                echo "Backup created at: $(date)" > $BACKUP_DIR/metadata.txt
+                echo "Vault version: $(vault version)" >> $BACKUP_DIR/metadata.txt
+                
+                # Compress backup
+                tar -czf $BACKUP_DIR.tar.gz -C $BACKUP_DIR .
+                rm -rf $BACKUP_DIR
+              else
+                echo "VAULT_TOKEN not set. Backup failed."
+                exit 1
+              fi
+            env:
+            - name: VAULT_ADDR
+              value: "http://vault:8200"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-token
+                  key: token
+            volumeMounts:
+            - name: vault-backup
+              mountPath: /backup
+          volumes:
+          - name: vault-backup
+            persistentVolumeClaim:
+              claimName: vault-backup
+          restartPolicy: OnFailure
