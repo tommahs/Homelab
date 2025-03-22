@@ -24,7 +24,6 @@ resource "libvirt_volume" "ceph_disk" {
   pool   = "homelab_ceph"
   source = libvirt_volume.base_arch_qcow2.id
   format = "qcow2"
-  size   = 41943040
 }
 
 # Define second disk for each VM (50GB nonformatted disk)
