@@ -17,15 +17,24 @@ resource "libvirt_volume" "base_arch_qcow2" {
   source = var.vm_image_path  # Path to the base image
   format = "qcow2"
 }
-# Defining nodes
+# Defining node disks
 resource "libvirt_volume" "ceph_disk" {
   count  = 3
   name   = "ceph${count.index + 1}.qcow2"
   pool   = "homelab_ceph"
   source = libvirt_volume.base_arch_qcow2.id
   format = "qcow2"
-  size   = 41943040
 }
+
+# Define second disk for each VM (50GB nonformatted disk)
+resource "libvirt_volume" "ceph_data_disk" {
+  count  = 3
+  name   = "ceph${count.index + 1}-data.qcow2"
+  pool   = "homelab_ceph"
+  format = "qcow2"
+  size   = 52428800  # 50GB in KB
+}
+
 # Define the node using the new 50GB disk
 resource "libvirt_domain" "ceph_node" {
   count    = 3
@@ -40,7 +49,10 @@ resource "libvirt_domain" "ceph_node" {
   disk {
     volume_id = libvirt_volume.ceph_disk[count.index].id
   }
-
+  
+  disk {
+    volume_id = libvirt_volume.ceph_data_disk[count.index].id
+  }
   network_interface {
     network_name = "default"
   }
@@ -69,7 +81,7 @@ variable "disksize" {
 resource "libvirt_cloudinit_disk" "ceph_cloudinit" {
   count     = 3
   name      = "cloudinit-ceph${count.index + 1}"
-  pool      = "homelab_k8s"
+  pool      = "homelab_ceph"
 
   user_data = <<EOF
 #cloud-config
