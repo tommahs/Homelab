@@ -1,0 +1,14 @@
+---
+# PVC for wiki content (if not already created)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: python-docs
+  namespace: n8n
+spec:
+  storageClassName: python-docs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
