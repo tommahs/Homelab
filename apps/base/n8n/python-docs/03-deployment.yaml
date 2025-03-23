@@ -30,4 +30,4 @@ spec:
             claimName: python-docs  # PVC reference
         - name: nginx-config
           configMap:
-            name: pathfinderwiki-nginx-config
+            name: python-docs-config
