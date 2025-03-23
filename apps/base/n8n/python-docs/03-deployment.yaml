@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-docs-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-docs
+  template:
+    metadata:
+      labels:
+        app: python-docs
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          volumeMounts:
+            - name: python-docs-volume
+              mountPath: /data
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: python-docs-volume
+          persistentVolumeClaim:
+            claimName: python-docs  # PVC reference

@@ -1,0 +1,32 @@
+---
+# ConfigMap for nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pathfinderwiki-nginx-config
+  namespace: pathfinderwiki
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    pid /run/nginx.pid;
+    include /etc/nginx/modules-enabled/*.conf;
+    events {
+      worker_connections 768;
+    }
+    http {
+      gzip on;
+      server_tokens off;
+
+      server {
+        listen 80;
+        server_name _default;
+        root /data;
+        index index.php;
+        try_files $uri $uri/ =404;
+
+        location /healthz {
+          return 200;
+        }
+      }
+    }
