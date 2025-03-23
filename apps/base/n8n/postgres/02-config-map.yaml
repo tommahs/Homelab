@@ -15,3 +15,14 @@ data:
     else
     	echo "SETUP INFO: No Environment variables given!"
     fi
+    # Check if the vector extension is available and install it if needed
+    if [ ! -e /usr/share/postgresql/17/extension/vector.control ]; then
+        echo "Configuring vector extension..."
+
+        # Run the SQL command using environment variables
+        PGPASSWORD="${POSTGRES_PASSWORD}" psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -h "localhost" -p "5432" -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+        echo "Vector extension installed."
+    else
+        echo "Vector extension already exists."
+    fi
