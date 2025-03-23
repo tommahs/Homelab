@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-docs
+  namespace: n8n
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-docs
+  template:
+    metadata:
+      labels:
+        app: python-docs
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          volumeMounts:
+            - name: python-docs-volume
+              mountPath: /usr/share/nginx/html
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: python-docs-volume
+          persistentVolumeClaim:
+            claimName: python-docs  # PVC reference
+        - name: nginx-config
+          configMap:
+            name: python-docs-config

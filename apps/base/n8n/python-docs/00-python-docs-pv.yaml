@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: python-docs
+  namespace: n8n
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: python-docs
+  nfs:
+    path: /data/nfs/n8n/python-docs/
+    server: 192.168.122.1
+  mountOptions:
+    - hard
+    - nfsvers=4.1
