@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-docs-deployment
+  name: python-docs
   namespace: n8n
 spec:
   replicas: 1
@@ -18,7 +18,7 @@ spec:
           image: nginx:latest
           volumeMounts:
             - name: python-docs-volume
-              mountPath: /data
+              mountPath: /usr/share/nginx/html
             - name: nginx-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
