@@ -55,6 +55,10 @@ spec:
               value: http
             - name: N8N_PORT
               value: "5678"
+            - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+              value: "true"
+            - name: N8N_RUNNERS_ENABLED
+              value: "true"
             # BEGIN ISOLATION
             - name: N8N_DIAGNOSTICS_ENABLED
               value: "false"
@@ -84,9 +88,9 @@ spec:
             - containerPort: 5678
           resources:
             requests:
-              memory: "250Mi"
+              memory: "1Gi"
             limits:
-              memory: "500Mi"
+              memory: "2Gi"
       restartPolicy: Always
       volumes:
         - name: n8n-secret
