@@ -8,25 +8,24 @@ data:
     #!/bin/bash
     set -e;
     if [ -n "${POSTGRES_NON_ROOT_USER:-}" ] && [ -n "${POSTGRES_NON_ROOT_PASSWORD:-}" ]; then
-    	psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    		CREATE USER "${POSTGRES_NON_ROOT_USER}" WITH PASSWORD '${POSTGRES_NON_ROOT_PASSWORD}';
-    		GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DB} TO "${POSTGRES_NON_ROOT_USER}";
-                GRANT CREATE ON SCHEMA public TO "${POSTGRES_NON_ROOT_USER}";
-                GRANT USAGE ON SCHEMA public TO "${POSTGRES_NON_ROOT_USER}";
-                CREATE DATABASE public;
-                GRANT ALL PRIVILEGES ON DATABASE public TO "$POSTGRES_NON_ROOT_USER";
-    	EOSQL
-    else
-    	echo "SETUP INFO: No Environment variables given!"
-    fi
-    # Check if the vector extension is available and install it if needed
-    if [ ! -e /usr/share/postgresql/17/extension/vector.control ]; then
-        echo "Configuring vector extension..."
+      psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        CREATE USER "${POSTGRES_NON_ROOT_USER}" WITH PASSWORD '${POSTGRES_NON_ROOT_PASSWORD}';
+        CREATE SCHEMA IF NOT EXISTS n8n_schema AUTHORIZATION "${POSTGRES_NON_ROOT_USER}";
+        GRANT USAGE, CREATE ON SCHEMA n8n_schema TO "${POSTGRES_NON_ROOT_USER}";
+        GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA n8n_schema TO "${POSTGRES_NON_ROOT_USER}";
+        GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA n8n_schema TO "${POSTGRES_NON_ROOT_USER}";
+        ALTER DEFAULT PRIVILEGES IN SCHEMA n8n_schema 
+            GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "${POSTGRES_NON_ROOT_USER}";
+        ALTER DEFAULT PRIVILEGES IN SCHEMA n8n_schema 
+            GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO "${POSTGRES_NON_ROOT_USER}";
 
-        # Run the SQL command using environment variables
-        PGPASSWORD="${POSTGRES_PASSWORD}" psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -h "localhost" -p "5432" -c "CREATE EXTENSION IF NOT EXISTS vector;"
-
-        echo "Vector extension installed."
+      EOSQL
     else
-        echo "Vector extension already exists."
+      echo "SETUP INFO: No Environment variables given!"
     fi
+    echo "Configuring vector extension..."
+
+    # Run the SQL command using environment variables
+    PGPASSWORD="${POSTGRES_PASSWORD}" psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -h "localhost" -p "5432" -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+    echo "Vector extension installed."
