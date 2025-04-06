@@ -1,0 +1,49 @@
+# mimir/distributor.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mimir-distributor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mimir
+      component: distributor
+  template:
+    metadata:
+      labels:
+        app: mimir
+        component: distributor
+    spec:
+      containers:
+      - name: mimir
+        image: grafana/mimir:2.10.3
+        args:
+        - -target=distributor
+        - -config.file=/etc/mimir/mimir.yaml
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir
+      volumes:
+      - name: mimir-config
+        configMap:
+          name: mimir-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-distributor
+spec:
+  ports:
+  - port: 8080
+    name: http
+  - port: 9095
+    name: grpc
+  selector:
+    app: mimir
+    component: distributor

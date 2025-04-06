@@ -1,0 +1,46 @@
+# mimir/compactor.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mimir-compactor
+spec:
+  replicas: 1
+  serviceName: mimir-compactor
+  selector:
+    matchLabels:
+      app: mimir
+      component: compactor
+  template:
+    metadata:
+      labels:
+        app: mimir
+        component: compactor
+    spec:
+      containers:
+      - name: mimir
+        image: grafana/mimir:2.10.3
+        args:
+        - -target=compactor
+        - -config.file=/etc/mimir/mimir.yaml
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir
+      volumes:
+      - name: mimir-config
+        configMap:
+          name: mimir-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-compactor
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: mimir
+    component: compactor

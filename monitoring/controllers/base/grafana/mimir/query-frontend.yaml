@@ -1,0 +1,49 @@
+# mimir/query-frontend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mimir-query-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mimir
+      component: query-frontend
+  template:
+    metadata:
+      labels:
+        app: mimir
+        component: query-frontend
+    spec:
+      containers:
+      - name: mimir
+        image: grafana/mimir:2.10.3
+        args:
+        - -target=query-frontend
+        - -config.file=/etc/mimir/mimir.yaml
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir
+      volumes:
+      - name: mimir-config
+        configMap:
+          name: mimir-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-query-frontend
+spec:
+  ports:
+  - port: 8080
+    name: http
+  - port: 9095
+    name: grpc
+  selector:
+    app: mimir
+    component: query-frontend

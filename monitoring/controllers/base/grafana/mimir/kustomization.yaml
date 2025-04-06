@@ -1,0 +1,36 @@
+# mimir/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+  # endpoint: ${S3_ENDPOINT}
+  # insecure: ${S3_SECURE_CONNECT}
+  # bucket_name: ${MIMIR_S3_BUCKET_NAME}
+  # access_key_id: ${S3_ACCESS_KEY}
+  # secret_access_key: ${S3_SECRET_KEY}
+  # bucket_name: ${MIMIR_S3_RULER_BUCKET_NAME}
+  - distributor.yaml
+  - ingester.yaml
+  - querier.yaml
+  - query-frontend.yaml
+  - store-gateway.yaml
+  - compactor.yaml
+  - ruler.yaml
+  - ingress.yaml
+  - secret.yaml
+
+
+
+vars:
+  - name: MIMIR_ENDPOINT
+    objref:
+      kind: Secret
+      name: lgtm-ingress-secret.yaml
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.MIMIR_ENDPOINT
+      
+patchesStrategicMerge:
+  - ingress-patch.yaml
+

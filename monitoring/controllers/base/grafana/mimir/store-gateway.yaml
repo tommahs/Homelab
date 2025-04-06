@@ -1,0 +1,51 @@
+# mimir/store-gateway.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mimir-store-gateway
+spec:
+  replicas: 3
+  serviceName: mimir-store-gateway
+  selector:
+    matchLabels:
+      app: mimir
+      component: store-gateway
+  template:
+    metadata:
+      labels:
+        app: mimir
+        component: store-gateway
+    spec:
+      containers:
+      - name: mimir
+        image: grafana/mimir:2.10.3
+        args:
+        - -target=store-gateway
+        - -config.file=/etc/mimir/mimir.yaml
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir
+      volumes:
+      - name: mimir-config
+        configMap:
+          name: mimir-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-store-gateway
+spec:
+  ports:
+  - port: 8080
+    name: http
+  - port: 9095
+    name: grpc
+  clusterIP: None
+  selector:
+    app: mimir
+    component: store-gateway

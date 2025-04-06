@@ -1,0 +1,49 @@
+# mimir/querier.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mimir-querier
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mimir
+      component: querier
+  template:
+    metadata:
+      labels:
+        app: mimir
+        component: querier
+    spec:
+      containers:
+      - name: mimir
+        image: grafana/mimir:2.10.3
+        args:
+        - -target=querier
+        - -config.file=/etc/mimir/mimir.yaml
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir
+      volumes:
+      - name: mimir-config
+        configMap:
+          name: mimir-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-querier
+spec:
+  ports:
+  - port: 8080
+    name: http
+  - port: 9095
+    name: grpc
+  selector:
+    app: mimir
+    component: querier
