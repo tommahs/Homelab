@@ -1,0 +1,46 @@
+# tempo/compactor.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tempo-compactor
+spec:
+  replicas: 1
+  serviceName: tempo-compactor
+  selector:
+    matchLabels:
+      app: tempo
+      component: compactor
+  template:
+    metadata:
+      labels:
+        app: tempo
+        component: compactor
+    spec:
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.3.0
+        args:
+        - -target=compactor
+        - -config.file=/etc/tempo/tempo.yaml
+        ports:
+        - containerPort: 3200
+          name: http
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo
+      volumes:
+      - name: tempo-config
+        configMap:
+          name: tempo-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-compactor
+spec:
+  ports:
+  - port: 3200
+    name: http
+  selector:
+    app: tempo
+    component: compactor

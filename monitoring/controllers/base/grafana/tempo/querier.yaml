@@ -1,0 +1,49 @@
+# tempo/querier.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo-querier
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tempo
+      component: querier
+  template:
+    metadata:
+      labels:
+        app: tempo
+        component: querier
+    spec:
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.3.0
+        args:
+        - -target=querier
+        - -config.file=/etc/tempo/tempo.yaml
+        ports:
+        - containerPort: 3200
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo
+      volumes:
+      - name: tempo-config
+        configMap:
+          name: tempo-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-querier
+spec:
+  ports:
+  - port: 3200
+    name: http
+  - port: 9095
+    name: grpc
+  selector:
+    app: tempo
+    component: querier

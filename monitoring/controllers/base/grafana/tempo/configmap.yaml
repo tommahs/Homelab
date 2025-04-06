@@ -1,0 +1,69 @@
+# tempo/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo-config
+data:
+  tempo.yaml: |
+    server:
+      http_listen_port: 3200
+      grpc_listen_port: 9095
+
+    distributor:
+      receivers:
+        jaeger:
+          protocols:
+            thrift_http:
+              endpoint: 0.0.0.0:14268
+            grpc:
+              endpoint: 0.0.0.0:14250
+        zipkin:
+          endpoint: 0.0.0.0:9411
+        otlp:
+          protocols:
+            http:
+              endpoint: 0.0.0.0:4318
+            grpc:
+              endpoint: 0.0.0.0:4317
+      ring:
+        kvstore:
+          store: memberlist
+
+    ingester:
+      trace_idle_period: 10s
+      max_block_bytes: 1_000_000
+      max_block_duration: 5m
+      lifecycler:
+        ring:
+          replication_factor: 3
+          kvstore:
+            store: memberlist
+
+    compactor:
+      compaction:
+        block_retention: 168h
+      ring:
+        kvstore:
+          store: memberlist
+
+    storage:
+      trace:
+        backend: s3
+        s3:
+          bucket: ${TEMPO_S3_BUCKET_NAME}
+          endpoint: ${S3_ENDPOINT}
+          insecure: ${S3_SECURE_CONNECT}
+          access_key: ${S3_ACCESS_KEY}
+          secret_key: ${S3_SECRET_KEY}
+          force_path_style: ${S3_PATH_STYLE}
+        pool:
+          max_workers: 100
+          queue_depth: 10000
+
+    memberlist:
+      join_members:
+        - tempo-memberlist
+
+    overrides:
+      max_search_bytes_per_trace: 1_000_000_000
+      max_bytes_per_tag_values_query: 5_000_000

@@ -1,0 +1,51 @@
+# tempo/ingester.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tempo-ingester
+spec:
+  replicas: 3
+  serviceName: tempo-ingester
+  selector:
+    matchLabels:
+      app: tempo
+      component: ingester
+  template:
+    metadata:
+      labels:
+        app: tempo
+        component: ingester
+    spec:
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.3.0
+        args:
+        - -target=ingester
+        - -config.file=/etc/tempo/tempo.yaml
+        ports:
+        - containerPort: 3200
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo
+      volumes:
+      - name: tempo-config
+        configMap:
+          name: tempo-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-ingester
+spec:
+  ports:
+  - port: 3200
+    name: http
+  - port: 9095
+    name: grpc
+  clusterIP: None
+  selector:
+    app: tempo
+    component: ingester

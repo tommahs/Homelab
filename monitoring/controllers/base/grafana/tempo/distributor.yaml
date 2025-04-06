@@ -1,0 +1,69 @@
+# tempo/distributor.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo-distributor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tempo
+      component: distributor
+  template:
+    metadata:
+      labels:
+        app: tempo
+        component: distributor
+    spec:
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.3.0
+        args:
+        - -target=distributor
+        - -config.file=/etc/tempo/tempo.yaml
+        ports:
+        - containerPort: 3200
+          name: http
+        - containerPort: 9095
+          name: grpc
+        - containerPort: 14268
+          name: jaeger-thrift
+        - containerPort: 14250
+          name: jaeger-grpc
+        - containerPort: 9411
+          name: zipkin
+        - containerPort: 4317
+          name: otlp-grpc
+        - containerPort: 4318
+          name: otlp-http
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo
+      volumes:
+      - name: tempo-config
+        configMap:
+          name: tempo-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-distributor
+spec:
+  ports:
+  - port: 3200
+    name: http
+  - port: 9095
+    name: grpc
+  - port: 14268
+    name: jaeger-thrift
+  - port: 14250
+    name: jaeger-grpc
+  - port: 9411
+    name: zipkin
+  - port: 4317
+    name: otlp-grpc
+  - port: 4318
+    name: otlp-http
+  selector:
+    app: tempo
+    component: distributor
