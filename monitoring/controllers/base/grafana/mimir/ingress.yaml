@@ -9,7 +9,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
-  - host: mimir.example.com
+  - host: read-mimir.example.com
     http:
       paths:
       - path: /
@@ -17,5 +17,15 @@ spec:
         backend:
           service:
             name: mimir-query-frontend
+            port:
+              number: 8080
+  - host: write-mimir.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mimir-distributor
             port:
               number: 8080

@@ -11,3 +11,22 @@ resources:
   - compactor.yaml
   - ingress.yaml
   - secret.yaml
+
+vars:
+  - name: TEMPO_READ_ENDPOINT
+    objref:
+      kind: Secret
+      name: lgtm-ingress-secret.yaml
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.TEMPO_READ_ENDPOINT
+  - name: TEMPO_WRITE_ENDPOINT
+    objref:
+      kind: Secret
+      name: lgtm-ingress-secret.yaml
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.TEMPO_WRITE_ENDPOINT
+      
+patchesStrategicMerge:
+  - ingress-patch.yaml

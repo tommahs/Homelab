@@ -1,31 +1,21 @@
-# mimir/ingress.yaml
+# grafana/ingress-patch.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mimir
+  name: grafana
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
-  - host: ${MIMIR_READ_ENDPOINT}
+  - host: $(GF_ENDPOINT)
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: mimir-query-frontend
+            name: grafana
             port:
-              number: 8080
-  - host: ${MIMIR_WRITE_ENDPOINT}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: mimir-distributor
-            port:
-              number: 8080
+              number: 3000

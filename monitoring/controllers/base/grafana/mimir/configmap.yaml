@@ -43,7 +43,7 @@ data:
     
     ruler:
       enable_api: true
-      alertmanager_url: http://alertmanager.monitoring.svc.cluster.local:9093
+      alertmanager_url: http://alertmanager.observability.svc.cluster.local:9093
       ring:
         kvstore:
           store: memberlist
@@ -76,7 +76,7 @@ data:
       service_discovery:
         type: dns
         dns:
-          address: mimir-querier.monitoring.svc.cluster.local:8080
+          address: mimir-querier.observability.svc.cluster.local:8080
 
     limits:
       max_query_parallelism: 16
