@@ -9,7 +9,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
-  - host: ${MIMIR_READ_ENDPOINT}
+  - host: PLACEHOLDER_MIMIR_READ_ENDPOINT
     http:
       paths:
       - path: /
@@ -19,7 +19,7 @@ spec:
             name: mimir-query-frontend
             port:
               number: 8080
-  - host: ${MIMIR_WRITE_ENDPOINT}
+  - host: PLACEHOLDER_MIMIR_WRITE_ENDPOINT
     http:
       paths:
       - path: /

@@ -9,7 +9,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
-  - host: $(GF_ENDPOINT)
+  - host: PLACEHOLDER_GF_ENDPOINT
     http:
       paths:
       - path: /

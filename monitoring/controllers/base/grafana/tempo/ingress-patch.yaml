@@ -9,7 +9,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
-  - host: ${TEMPO_READ_ENDPOINT}
+  - host: PLACEHOLDER_TEMPO_READ_ENDPOINT
     http:
       paths:
       - path: /
@@ -19,7 +19,7 @@ spec:
             name: tempo-query-frontend
             port:
               number: 3200
-  - host: ${TEMPO_WRITE_ENDPOINT}
+  - host: PLACEHOLDER_TEMPO_WRITE_ENDPOINT
     http:
       paths:
       - path: /

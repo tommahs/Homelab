@@ -6,7 +6,7 @@ metadata:
   name: grafana
   namespace: observability
 spec:
-  storageClassName: grafana
+  storageClassName: grafana-storage
   accessModes:
     - ReadWriteMany
   resources:

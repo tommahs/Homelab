@@ -9,7 +9,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
-  - host: $(LOKI_ENDPOINT)
+  - host: PLACEHOLDER_LOKI_ENDPOINT
     http:
       paths:
       - path: /

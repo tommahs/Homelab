@@ -12,21 +12,28 @@ resources:
   - ingress.yaml
   - secret.yaml
 
-vars:
-  - name: TEMPO_READ_ENDPOINT
-    objref:
+
+replacements:
+  - source:
       kind: Secret
-      name: lgtm-ingress-secret.yaml
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.TEMPO_READ_ENDPOINT
-  - name: TEMPO_WRITE_ENDPOINT
-    objref:
+      name: lgtm-ingress-secret
+      fieldPath: stringData.TEMPO_READ_ENDPOINT
+    targets:
+      - select:
+          kind: Ingress
+          name: tempo
+        fieldPaths:
+          - "spec.rules.0.host"
+  - source:
       kind: Secret
-      name: lgtm-ingress-secret.yaml
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.TEMPO_WRITE_ENDPOINT
-      
-patchesStrategicMerge:
-  - ingress-patch.yaml
+      name: lgtm-ingress-secret
+      fieldPath: stringData.TEMPO_WRITE_ENDPOINT
+    targets:
+      - select:
+          kind: Ingress
+          name: tempo
+        fieldPaths:
+          - "spec.rules.0.host"
+
+patches:
+  - path: ingress-patch.yaml

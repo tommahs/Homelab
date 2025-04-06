@@ -10,4 +10,5 @@ resources:
   - loki/
   - mimir/
   - tempo/
-  - common/
+  # The common folder only contains examples on the expected variables
+  # - common/

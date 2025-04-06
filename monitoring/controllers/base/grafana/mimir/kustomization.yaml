@@ -14,22 +14,28 @@ resources:
   - ingress.yaml
   - secret.yaml
 
-vars:
-  - name: MIMIR_READ_ENDPOINT
-    objref:
+replacements:
+  - source:
       kind: Secret
-      name: lgtm-ingress-secret.yaml
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.MIMIR_READ_ENDPOINT
-  - name: MIMIR_WRITE_ENDPOINT
-    objref:
+      name: lgtm-ingress-secret
+      fieldPath: stringData.MIMIR_READ_ENDPOINT
+    targets:
+      - select:
+          kind: Ingress
+          name: mimir
+        fieldPaths:
+          - "spec.rules.0.host"
+  - source:
       kind: Secret
-      name: lgtm-ingress-secret.yaml
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.MIMIR_WRITE_ENDPOINT
-      
-patchesStrategicMerge:
-  - ingress-patch.yaml
+      name: lgtm-ingress-secret
+      fieldPath: stringData.MIMIR_WRITE_ENDPOINT
+    targets:
+      - select:
+          kind: Ingress
+          name: mimir
+        fieldPaths:
+          - "spec.rules.0.host"
 
+patches:
+  - path: ingress-patch.yaml
+  

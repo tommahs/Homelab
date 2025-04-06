@@ -7,19 +7,21 @@ resources:
   - service.yaml
   - ingress.yaml
   - configmap.yaml
-  - configmap-datasources
+  - configmap-datasources.yaml
   - secret.yaml
   - pvc.yaml
   - pv.yaml
 
-vars:
-  - name: GF_ENDPOINT
-    objref:
+replacements:
+  - source:
       kind: Secret
-      name: lgtm-ingress-secret.yaml
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.GF_ENDPOINT
-      
-patchesStrategicMerge:
-  - ingress-patch.yaml
+      name: lgtm-ingress-secret
+      fieldPath: stringData.GF_ENDPOINT
+    targets:
+      - select:
+          kind: Ingress
+          name: grafana
+        fieldPaths:
+          - "spec.rules.0.host"
+patches:
+  - path: ingress-patch.yaml

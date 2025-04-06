@@ -13,15 +13,17 @@ resources:
   - compactor.yaml
   - index-gateway.yaml
   - ingress.yaml
-
-vars:
-  - name: LOKI_ENDPOINT
-    objref:
+  
+replacements:
+  - source:
       kind: Secret
-      name: lgtm-ingress-secret.yaml
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.LOKI_ENDPOINT
-      
-patchesStrategicMerge:
-  - ingress-patch.yaml
+      name: lgtm-ingress-secret
+      fieldPath: stringData.LOKI_ENDPOINT
+    targets:
+      - select:
+          kind: Ingress
+          name: loki
+        fieldPaths:
+          - "spec.rules.0.host"
+patches:
+  - path: ingress-patch.yaml
