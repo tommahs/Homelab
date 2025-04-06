@@ -1,0 +1,46 @@
+# loki/compactor.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: loki-compactor
+spec:
+  replicas: 1
+  serviceName: loki-compactor
+  selector:
+    matchLabels:
+      app: loki
+      component: compactor
+  template:
+    metadata:
+      labels:
+        app: loki
+        component: compactor
+    spec:
+      containers:
+      - name: loki
+        image: grafana/loki:2.9.0
+        args:
+        - -target=compactor
+        - -config.file=/etc/loki/loki.yaml
+        ports:
+        - containerPort: 3100
+          name: http
+        volumeMounts:
+        - name: loki-config
+          mountPath: /etc/loki
+      volumes:
+      - name: loki-config
+        configMap:
+          name: loki-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-compactor
+spec:
+  ports:
+  - port: 3100
+    name: http
+  selector:
+    app: loki
+    component: compactor

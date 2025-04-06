@@ -1,0 +1,49 @@
+# loki/distributor.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki-distributor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: loki
+      component: distributor
+  template:
+    metadata:
+      labels:
+        app: loki
+        component: distributor
+    spec:
+      containers:
+      - name: loki
+        image: grafana/loki:2.9.0
+        args:
+        - -target=distributor
+        - -config.file=/etc/loki/loki.yaml
+        ports:
+        - containerPort: 3100
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: loki-config
+          mountPath: /etc/loki
+      volumes:
+      - name: loki-config
+        configMap:
+          name: loki-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-distributor
+spec:
+  ports:
+  - port: 3100
+    name: http
+  - port: 9095
+    name: grpc
+  selector:
+    app: loki
+    component: distributor

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: loki-ingester
+spec:
+  replicas: 3
+  serviceName: loki-ingester
+  selector:
+    matchLabels:
+      app: loki
+      component: ingester
+  template:
+    metadata:
+      labels:
+        app: loki
+        component: ingester
+    spec:
+      containers:
+      - name: loki
+        image: grafana/loki:2.9.0
+        args:
+        - -target=ingester
+        - -config.file=/etc/loki/loki.yaml  # Use the S3 config for ingesters
+        ports:
+        - containerPort: 3100
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+        - name: loki-config
+          mountPath: /etc/loki
+          subPath: loki.yaml  # Mount only the config file
+        - name: loki-wal
+          mountPath: /tmp/loki/wal  # Optional: WAL data can use emptyDir or a small local disk
+      volumes:
+      - name: loki-config
+        configMap:
+          name: loki-config
+      - name: loki-wal
+        emptyDir: {}  # Optional: Use emptyDir for WAL if you don't need persistent storage for it
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-ingester
+spec:
+  ports:
+  - port: 3100
+    name: http
+  - port: 9095
+    name: grpc
+  clusterIP: None
+  selector:
+    app: loki
+    component: ingester

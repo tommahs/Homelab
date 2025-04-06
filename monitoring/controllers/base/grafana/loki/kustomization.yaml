@@ -1,0 +1,33 @@
+# loki/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+    # endpoint: ${S3_ENDPOINT}
+    # insecure: ${S3_SECURE_CONNECT}
+    # bucketnames: ${LOKI_S3_BUCKET_NAME}
+    # access_key_id: ${S3_ACCESS_KEY}
+    # secret_access_key: ${S3_SECRET_KEY}
+    # s3forcepathstyle: ${S3_PATH_STYLE}
+  - distributor.yaml
+  - ingester.yaml
+  - querier.yaml
+  - query-frontend.yaml
+  - gateway.yaml
+  - storage.yaml
+  - compactor.yaml
+  - index-gateway.yaml
+  - ingress.yaml
+
+vars:
+  - name: LOKI_ENDPOINT
+    objref:
+      kind: Secret
+      name: lgtm-ingress-secret.yaml
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.LOKI_ENDPOINT
+      
+patchesStrategicMerge:
+  - ingress-patch.yaml
