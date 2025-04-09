@@ -23,18 +23,17 @@ spec:
             for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
             for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
             
-            # Use envsubst to replace placeholders in /etc/loki/loki.yaml.template and output to a writable directory
-            cat /etc/loki/loki.yaml.template | envsubst > /etc/loki/merged-loki.yaml
+            # Use envsubst to replace placeholders in /etc/loki/config-template/loki.yaml.template and output to the writable volume
+            cat /etc/loki/config-template/loki.yaml.template | envsubst > /etc/loki/merged-loki.yaml
         volumeMounts:
         - name: loki-config
-          mountPath: /etc/loki
+          mountPath: /etc/loki/config-template  # Mount ConfigMap to a different path
         - name: lgtm-s3-secrets
           mountPath: /lgtm-s3-secrets
         - name: loki-secrets
           mountPath: /loki-secrets
         - name: merged-config
-          mountPath: /etc/loki/merged-loki.yaml
-          subPath: loki.yaml # We use subPath to ensure the file name stays consistent
+          mountPath: /etc/loki # The writable volume where merged-loki.yaml will be written
 
       containers:
       - name: loki
@@ -49,14 +48,13 @@ spec:
         - containerPort: 9095
           name: grpc
         volumeMounts:
-          - name: loki-config
-            mountPath: /etc/loki
+          - name: merged-config
+            mountPath: /etc/loki # The same writable volume where merged-loki.yaml is created
           - name: lgtm-s3-secrets
             mountPath: /lgtm-s3-secrets
           - name: loki-secrets
             mountPath: /loki-secrets
-          - name: merged-config
-            mountPath: /etc/loki
+
       volumes:
         - name: loki-config
           configMap:
@@ -68,7 +66,8 @@ spec:
           secret:
             secretName: loki-secret
         - name: merged-config
-          emptyDir: {}
+          emptyDir: {}  # This ensures a writable volume for the init container and Loki container to share
+
 
 ---
 apiVersion: v1
