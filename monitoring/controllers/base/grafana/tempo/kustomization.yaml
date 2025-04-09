@@ -51,12 +51,12 @@ replacements:
           
   - source:
       kind: Secret
-      name: tempo-secret
+      name: lgtm-s3-secret
       fieldPath: stringData.S3_ENDPOINT
     targets:
       - select:
           kind: ConfigMap
-          name: lgtm-s3-secret
+          name: tempo-config
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -64,12 +64,12 @@ replacements:
           
   - source:
       kind: Secret
-      name: tempo-secret
+      name: lgtm-s3-secret
       fieldPath: stringData.S3_SECURE_CONNECT
     targets:
       - select:
           kind: ConfigMap
-          name: lgtm-s3-secret
+          name: tempo-config
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -77,12 +77,12 @@ replacements:
           
   - source:
       kind: Secret
-      name: tempo-secret
+      name: lgtm-s3-secret
       fieldPath: stringData.S3_ACCESS_KEY
     targets:
       - select:
           kind: ConfigMap
-          name: lgtm-s3-secret
+          name: tempo-config
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -90,12 +90,12 @@ replacements:
           
   - source:
       kind: Secret
-      name: tempo-secret
+      name: lgtm-s3-secret
       fieldPath: stringData.S3_SECRET_KEY
     targets:
       - select:
           kind: ConfigMap
-          name: lgtm-s3-secret
+          name: tempo-config
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -103,12 +103,12 @@ replacements:
           
   - source:
       kind: Secret
-      name: tempo-secret
+      name: lgtm-s3-secret
       fieldPath: stringData.S3_PATH_STYLE
     targets:
       - select:
           kind: ConfigMap
-          name: lgtm-s3-secret
+          name: tempo-config
         fieldPaths:
           - data.tempo\.yaml
         options:
