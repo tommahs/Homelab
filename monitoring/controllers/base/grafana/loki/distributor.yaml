@@ -16,10 +16,11 @@ spec:
     spec:
       initContainers:
       - name: config-merge
-        image: busybox:1.36
+        image: alpine:3.21  # Use Alpine, which includes envsubst
         command: ["/bin/sh", "-c"]
         args:
           - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
             for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
             for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
             
@@ -67,7 +68,6 @@ spec:
             secretName: loki-secret
         - name: merged-config
           emptyDir: {}  # This ensures a writable volume for the init container and Loki container to share
-
 
 ---
 apiVersion: v1
