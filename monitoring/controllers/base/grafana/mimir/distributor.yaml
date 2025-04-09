@@ -27,12 +27,42 @@ spec:
         - containerPort: 9095
           name: grpc
         volumeMounts:
-        - name: mimir-config
+        - name: generated-config
           mountPath: /etc/mimir
+
+      initContainers:
+        - name: config-generator
+          image: busybox:1.36
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              for f in /common-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+              for f in /mimir-secrets/*; do export $(basename $f)=$(cat $f); done
+              envsubst < /config/mimir.yaml.template > /generated/mimir.yaml
+          volumeMounts:
+            - name: config-template
+              mountPath: /config
+            - name: common-s3-secrets
+              mountPath: /common-s3-secrets
+            - name: mimir-secrets
+              mountPath: /mimir-secrets
+            - name: generated-config
+              mountPath: /generated
+              
       volumes:
-      - name: mimir-config
-        configMap:
-          name: mimir-config
+        - name: config-template
+          configMap:
+            name: mimir-config-template
+        - name: common-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: mimir-secrets
+          secret:
+            secretName: mimir-secret
+        - name: generated-config
+          configMap:
+            name: generated-config
+            emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
