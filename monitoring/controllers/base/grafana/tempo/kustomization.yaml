@@ -12,11 +12,11 @@ resources:
   - ingress.yaml
   - secret.yaml
 
-
 replacements:
+  # Existing replacements
   - source:
       kind: Secret
-      name: lgtm-ingress-secret
+      name: tempo-secret
       fieldPath: stringData.TEMPO_READ_ENDPOINT
     targets:
       - select:
@@ -26,7 +26,7 @@ replacements:
           - "spec.rules.0.host"
   - source:
       kind: Secret
-      name: lgtm-ingress-secret
+      name: tempo-secret
       fieldPath: stringData.TEMPO_WRITE_ENDPOINT
     targets:
       - select:
@@ -34,6 +34,85 @@ replacements:
           name: tempo
         fieldPaths:
           - "spec.rules.0.host"
+          
+  # New replacements for ConfigMap variables
+  - source:
+      kind: Secret
+      name: tempo-secret
+      fieldPath: stringData.TEMPO_S3_BUCKET_NAME
+    targets:
+      - select:
+          kind: ConfigMap
+          name: tempo-config
+        fieldPaths:
+          - data.tempo\.yaml
+        options:
+          delimiter: "${TEMPO_S3_BUCKET_NAME}"
+          
+  - source:
+      kind: Secret
+      name: tempo-secret
+      fieldPath: stringData.S3_ENDPOINT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: tempo-config
+        fieldPaths:
+          - data.tempo\.yaml
+        options:
+          delimiter: "${S3_ENDPOINT}"
+          
+  - source:
+      kind: Secret
+      name: tempo-secret
+      fieldPath: stringData.S3_SECURE_CONNECT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: tempo-config
+        fieldPaths:
+          - data.tempo\.yaml
+        options:
+          delimiter: "${S3_SECURE_CONNECT}"
+          
+  - source:
+      kind: Secret
+      name: tempo-secret
+      fieldPath: stringData.S3_ACCESS_KEY
+    targets:
+      - select:
+          kind: ConfigMap
+          name: tempo-config
+        fieldPaths:
+          - data.tempo\.yaml
+        options:
+          delimiter: "${S3_ACCESS_KEY}"
+          
+  - source:
+      kind: Secret
+      name: tempo-secret
+      fieldPath: stringData.S3_SECRET_KEY
+    targets:
+      - select:
+          kind: ConfigMap
+          name: tempo-config
+        fieldPaths:
+          - data.tempo\.yaml
+        options:
+          delimiter: "${S3_SECRET_KEY}"
+          
+  - source:
+      kind: Secret
+      name: tempo-secret
+      fieldPath: stringData.S3_PATH_STYLE
+    targets:
+      - select:
+          kind: ConfigMap
+          name: tempo-config
+        fieldPaths:
+          - data.tempo\.yaml
+        options:
+          delimiter: "${S3_PATH_STYLE}"
 
 patches:
   - path: ingress-patch.yaml

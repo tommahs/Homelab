@@ -1,21 +1,24 @@
 # loki/ingress-patch.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: loki
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
+  namespace: observability
 spec:
-  rules:
-  - host: PLACEHOLDER_LOKI_ENDPOINT
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: loki-gateway
-            port:
-              number: 3100
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`PLACEHOLDER_LOKI_ENDPOINT`)
+      priority: 10
+      services:
+        - kind: Service
+          name: loki-gateway
+          namespace: observability
+          passHostHeader: true
+          port: 3100
+          responseForwarding:
+            flushInterval: 1ms
+  tls:
+    secretName: loki-tls

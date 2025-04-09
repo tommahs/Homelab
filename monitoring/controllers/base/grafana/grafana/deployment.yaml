@@ -40,11 +40,14 @@ spec:
               key: GF_SECURITY_ADMIN_PASSWORD
         - name: GF_INSTALL_PLUGINS
           value: "grafana-piechart-panel,grafana-worldmap-panel"  
+
+        - name: GF_SECURITY_ALLOW_EMBEDDING
+          value: "true"
         # Grafana endpoint
         - name: GRAFANA_ENDPOINT
           valueFrom:
             secretKeyRef:
-              name: lgtm-ingress-secret.yaml
+              name: grafana-secret
               key: GF_ENDPOINT
         # S3 secrets
         - name: GF_S3_BUCKET_NAME

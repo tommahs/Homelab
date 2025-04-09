@@ -16,6 +16,7 @@ data:
         secret_access_key: ${S3_SECRET_KEY}
         signature_version: v4
         s3forcepathstyle: ${S3_PATH_STYLE}  # Enable path-style access if required
+        
 
     compactor:
       data_dir: /tmp/mimir/compactor

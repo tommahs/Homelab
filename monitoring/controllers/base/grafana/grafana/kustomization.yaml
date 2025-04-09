@@ -15,7 +15,7 @@ resources:
 replacements:
   - source:
       kind: Secret
-      name: lgtm-ingress-secret
+      name: grafana-secret
       fieldPath: stringData.GF_ENDPOINT
     targets:
       - select:

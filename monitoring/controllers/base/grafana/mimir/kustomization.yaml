@@ -15,9 +15,10 @@ resources:
   - secret.yaml
 
 replacements:
+  # Existing replacements
   - source:
       kind: Secret
-      name: lgtm-ingress-secret
+      name: mimir-secret
       fieldPath: stringData.MIMIR_READ_ENDPOINT
     targets:
       - select:
@@ -27,7 +28,7 @@ replacements:
           - "spec.rules.0.host"
   - source:
       kind: Secret
-      name: lgtm-ingress-secret
+      name: mimir-secret
       fieldPath: stringData.MIMIR_WRITE_ENDPOINT
     targets:
       - select:
@@ -35,7 +36,98 @@ replacements:
           name: mimir
         fieldPaths:
           - "spec.rules.0.host"
+          
+  # New replacements for ConfigMap variables
+  - source:
+      kind: Secret
+      name: mimir-secret
+      fieldPath: stringData.S3_ENDPOINT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: mimir-config
+        fieldPaths:
+          - data.mimir\.yaml
+        options:
+          delimiter: "${S3_ENDPOINT}"
+          
+  - source:
+      kind: Secret
+      name: mimir-secret
+      fieldPath: stringData.S3_SECURE_CONNECT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: mimir-config
+        fieldPaths:
+          - data.mimir\.yaml
+        options:
+          delimiter: "${S3_SECURE_CONNECT}"
+          
+  - source:
+      kind: Secret
+      name: mimir-secret
+      fieldPath: stringData.MIMIR_S3_BUCKET_NAME
+    targets:
+      - select:
+          kind: ConfigMap
+          name: mimir-config
+        fieldPaths:
+          - data.mimir\.yaml
+        options:
+          delimiter: "${MIMIR_S3_BUCKET_NAME}"
+          
+  - source:
+      kind: Secret
+      name: mimir-secret
+      fieldPath: stringData.S3_ACCESS_KEY
+    targets:
+      - select:
+          kind: ConfigMap
+          name: mimir-config
+        fieldPaths:
+          - data.mimir\.yaml
+        options:
+          delimiter: "${S3_ACCESS_KEY}"
+          
+  - source:
+      kind: Secret
+      name: mimir-secret
+      fieldPath: stringData.S3_SECRET_KEY
+    targets:
+      - select:
+          kind: ConfigMap
+          name: mimir-config
+        fieldPaths:
+          - data.mimir\.yaml
+        options:
+          delimiter: "${S3_SECRET_KEY}"
+          
+  - source:
+      kind: Secret
+      name: mimir-secret
+      fieldPath: stringData.S3_PATH_STYLE
+    targets:
+      - select:
+          kind: ConfigMap
+          name: mimir-config
+        fieldPaths:
+          - data.mimir\.yaml
+        options:
+          delimiter: "${S3_PATH_STYLE}"
+          
+  - source:
+      kind: Secret
+      name: mimir-secret
+      fieldPath: stringData.MIMIR_S3_RULER_BUCKET_NAME
+    targets:
+      - select:
+          kind: ConfigMap
+          name: mimir-config
+        fieldPaths:
+          - data.mimir\.yaml
+        options:
+          delimiter: "${MIMIR_S3_RULER_BUCKET_NAME}"
 
 patches:
   - path: ingress-patch.yaml
-  
