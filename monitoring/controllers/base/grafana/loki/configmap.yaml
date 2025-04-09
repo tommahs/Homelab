@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: loki-config
 data:
-  loki.yaml: |
+  loki.yaml.template: |
     auth_enabled: false
 
     server:
