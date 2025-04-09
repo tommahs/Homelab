@@ -23,8 +23,8 @@ spec:
             for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
             for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
             
-            # Use envsubst to replace placeholders in /etc/loki/loki.yaml.template with the secret values
-            cat /etc/loki/loki.yaml.template | envsubst > /etc/loki/loki.yaml
+            # Use envsubst to replace placeholders in /etc/loki/loki.yaml.template and output to a writable directory
+            cat /etc/loki/loki.yaml.template | envsubst > /etc/loki/merged-loki.yaml
         volumeMounts:
         - name: loki-config
           mountPath: /etc/loki
@@ -32,13 +32,16 @@ spec:
           mountPath: /lgtm-s3-secrets
         - name: loki-secrets
           mountPath: /loki-secrets
+        - name: merged-config
+          mountPath: /etc/loki/merged-loki.yaml
+          subPath: loki.yaml # We use subPath to ensure the file name stays consistent
 
       containers:
       - name: loki
         image: grafana/loki:2.9.0
         args:
         - -target=distributor
-        - -config.file=/etc/loki/loki.yaml
+        - -config.file=/etc/loki/merged-loki.yaml
         - -config.expand-env=true
         ports:
         - containerPort: 3100
@@ -52,6 +55,8 @@ spec:
             mountPath: /lgtm-s3-secrets
           - name: loki-secrets
             mountPath: /loki-secrets
+          - name: merged-config
+            mountPath: /etc/loki
       volumes:
         - name: loki-config
           configMap:
@@ -62,6 +67,8 @@ spec:
         - name: loki-secrets
           secret:
             secretName: loki-secret
+        - name: merged-config
+          emptyDir: {}
 
 ---
 apiVersion: v1
