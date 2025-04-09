@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mimir-config
+  name: mimir-config-template
 data:
   mimir.yaml.template: |
     multitenancy_enabled: false
