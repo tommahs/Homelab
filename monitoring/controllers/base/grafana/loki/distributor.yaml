@@ -21,6 +21,37 @@ spec:
         - -target=distributor
         - -config.file=/etc/loki/loki.yaml
         - -config.expand-env=true
+        env:
+          - name: S3_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: lgtm-s3-secret
+                key: S3_ACCESS_KEY
+          - name: S3_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: lgtm-s3-secret
+                key: S3_ENDPOINT
+          - name: S3_SECURE_CONNECT
+            valueFrom:
+              secretKeyRef:
+                name: lgtm-s3-secret
+                key: S3_SECURE_CONNECT
+          - name: S3_PATH_STYLE
+            valueFrom:
+              secretKeyRef:
+                name: lgtm-s3-secret
+                key: S3_PATH_STYLE
+          - name: S3_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: lgtm-s3-secret
+                key: S3_SECRET_KEY
+          - name: LOKI_S3_BUCKET_NAME
+            valueFrom:
+              secretKeyRef:
+                name: loki-secret
+                key: LOKI_S3_BUCKET_NAME
         ports:
         - containerPort: 3100
           name: http
