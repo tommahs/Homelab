@@ -20,47 +20,29 @@ spec:
         args:
         - -target=distributor
         - -config.file=/etc/loki/loki.yaml
+        - -config.expand-env=true
         ports:
         - containerPort: 3100
           name: http
         - containerPort: 9095
           name: grpc
         volumeMounts:
-          - name: generated-config
+          - name: loki-config
             mountPath: /etc/loki
-
-      initContainers:
-        - name: config-generator
-          image: busybox:1.36
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              # Substitute environment variables and generate the final loki.yaml
-              for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
-              for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
-              envsubst < /config/loki.yaml.template > /generated/loki.yaml
-          volumeMounts:
-            - name: config-template
-              mountPath: /config
-            - name: lgtm-s3-secrets
-              mountPath: /lgtm-s3-secrets
-            - name: loki-secrets
-              mountPath: /loki-secrets
-            - name: generated-config
-              mountPath: /generated
-
+          - name: lgtm-s3-secrets
+            mountPath: /lgtm-s3-secrets
+          - name: loki-secrets
+            mountPath: /loki-secrets
       volumes:
-        - name: config-template
+        - name: loki-config
           configMap:
-            name: loki-config-template
+            name: loki-config
         - name: lgtm-s3-secrets
           secret:
             secretName: lgtm-s3-secret
         - name: loki-secrets
           secret:
             secretName: loki-secret
-        - name: generated-config
-          emptyDir: {}
 
 ---
 apiVersion: v1

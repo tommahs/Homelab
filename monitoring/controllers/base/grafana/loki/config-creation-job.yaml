@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: loki-config-generator
+spec:
+  template:
+    spec:
+      containers:
+        - name: loki-config-generator
+          image: busybox:1.35.0-uclibc
+          command:
+            - /bin/sh
+            - -c
+            - |
+              #!/bin/sh
+              set -e
+
+              # Read secrets into environment variables
+              LOKI_S3_BUCKET_NAME=$(cat /etc/loki-secrets/loki-s3-bucket-name)
+              S3_ENDPOINT=$(cat /etc/lgtm-s3-secrets/s3-endpoint)
+              S3_SECURE_CONNECT=$(cat /etc/lgtm-s3-secrets/s3-secure-connect)
+              S3_ACCESS_KEY=$(cat /etc/lgtm-s3-secrets/s3-access-key)
+              S3_SECRET_KEY=$(cat /etc/lgtm-s3-secrets/s3-secret-key)
+              S3_PATH_STYLE=$(cat /etc/lgtm-s3-secrets/s3-path-style)
+
+              # Create the directory to hold the rendered loki.yaml
+              mkdir -p /etc/loki/
+
+              # Substitute variables into the loki.yaml.template
+              envsubst < /etc/loki/loki.yaml.template > /etc/loki/loki.yaml
+
+              # Optionally, print the resulting config to verify
+              cat /etc/loki/loki.yaml
+
+              # You can mount the ConfigMap here or push it to an external system as needed
+          volumeMounts:
+            - name: lgtm-s3-secrets
+              mountPath: /etc/lgtm-s3-secrets
+            - name: loki-secrets
+              mountPath: /etc/loki-secrets
+            - name: loki-config-template
+              mountPath: /etc/loki
+              
+      restartPolicy: Never
+      volumes:
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: loki-secrets
+          secret:
+            secretName: loki-secret
+        - name: loki-config-template
+          configMap:
+            name: loki-config-template  # ConfigMap that contains loki.yaml.template
+  backoffLimit: 4
