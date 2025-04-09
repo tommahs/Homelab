@@ -56,7 +56,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: tempo-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -69,7 +69,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: tempo-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -82,7 +82,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: tempo-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -95,7 +95,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: tempo-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.tempo\.yaml
         options:
@@ -108,7 +108,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: tempo-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.tempo\.yaml
         options:

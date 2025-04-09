@@ -1,0 +1,6 @@
+
+  line 12: field s3forcepathstyle not found in type s3.Config
+  line 32: field lifecycler not found in type ingester.Config
+  line 45: field storage not found in type ruler.Config
+  line 70: field service_discovery not found in type scheduler.Config
+  line 77: field max_query_length not found in type validation.plainLimits

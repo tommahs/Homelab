@@ -45,7 +45,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: mimir-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.mimir\.yaml
         options:
@@ -58,7 +58,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: mimir-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.mimir\.yaml
         options:
@@ -84,7 +84,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: mimir-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.mimir\.yaml
         options:
@@ -97,7 +97,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: mimir-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.mimir\.yaml
         options:
@@ -110,7 +110,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: mimir-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.mimir\.yaml
         options:

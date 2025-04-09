@@ -35,7 +35,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: loki-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.loki\.yaml
         options:
@@ -48,7 +48,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: loki-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.loki\.yaml
         options:
@@ -74,7 +74,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: loki-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.loki\.yaml
         options:
@@ -87,7 +87,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: loki-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.loki\.yaml
         options:
@@ -100,7 +100,7 @@ replacements:
     targets:
       - select:
           kind: ConfigMap
-          name: loki-config
+          name: lgtm-s3-secret
         fieldPaths:
           - data.loki\.yaml
         options:
