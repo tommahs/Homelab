@@ -36,14 +36,14 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              for f in /common-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+              for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
               for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
               envsubst < /config/loki.yaml.template > /generated/loki.yaml
           volumeMounts:
             - name: config-template
               mountPath: /config
-            - name: common-s3-secrets
-              mountPath: /common-s3-secrets
+            - name: lgtm-s3-secrets
+              mountPath: /lgtm-s3-secrets
             - name: loki-secrets
               mountPath: /loki-secrets
             - name: generated-config
@@ -53,7 +53,7 @@ spec:
         - name: config-template
           configMap:
             name: loki-config-template
-        - name: common-s3-secrets
+        - name: lgtm-s3-secrets
           secret:
             secretName: lgtm-s3-secret
         - name: loki-secrets
