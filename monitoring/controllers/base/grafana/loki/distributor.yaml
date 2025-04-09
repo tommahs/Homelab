@@ -1,4 +1,3 @@
-# loki/distributor.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,6 +35,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
+              # Substitute environment variables and generate the final loki.yaml
               for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
               for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
               envsubst < /config/loki.yaml.template > /generated/loki.yaml
@@ -48,7 +48,7 @@ spec:
               mountPath: /loki-secrets
             - name: generated-config
               mountPath: /generated
-              
+
       volumes:
         - name: config-template
           configMap:
@@ -61,6 +61,7 @@ spec:
             secretName: loki-secret
         - name: generated-config
           emptyDir: {}
+
 ---
 apiVersion: v1
 kind: Service
