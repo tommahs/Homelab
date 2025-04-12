@@ -6,16 +6,16 @@ resources:
   - configmap.yaml
   - distributor.yaml
   - ingester.yaml
+  - compactor.yaml
   - querier.yaml
   - query-frontend.yaml
   - gateway.yaml
-  - compactor.yaml
   - index-gateway.yaml
   - ingress.yaml
+  - memberlist.yaml
   - secret.yaml
   
 replacements:
-  # Existing replacement
   - source:
       kind: Secret
       name: loki-secret

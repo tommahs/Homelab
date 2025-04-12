@@ -21,20 +21,24 @@ data:
           access_key_id: ${S3_ACCESS_KEY}
           secret_access_key: ${S3_SECRET_KEY}
           s3forcepathstyle: ${S3_PATH_STYLE}
+      compactor_address: loki-compactor
+      ring:
+        kvstore:
+          store: memberlist
+
 
     schema_config:
       configs:
-        - from: 2020-10-24
-          store: boltdb-shipper
-          object_store: s3
-          schema: v11
+        - from: 2023-07-01
+          store: tsdb
+          object_store: filesystem
+          schema: v13
           index:
             prefix: index_
             period: 24h
-
     compactor:
-      working_directory: /tmp/loki/compactor  # Temporary space for compactor
-      shared_store: s3  # Use S3 for compaction
+      working_directory: /tmp/loki/compactor
+      shared_store: s3
       retention_enabled: true
       retention_delete_delay: 2h
       retention_delete_worker_count: 150
@@ -50,7 +54,7 @@ data:
       storage:
         type: local
         local:
-          directory: /tmp/loki/rules  # Local for rules (optional)
+          directory: /tmp/loki/rules
       rule_path: /tmp/loki/rules
       alertmanager_url: http://alertmanager:9093
       ring:
@@ -87,7 +91,7 @@ data:
       max_transfer_retries: 0
       wal:
         enabled: true
-        dir: /tmp/loki/wal  # Use temporary space or none (depends on setup)
+        dir: /tmp/loki/wal
 
     memberlist:
       join_members:

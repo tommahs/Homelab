@@ -8,6 +8,7 @@ spec:
       containers:
         - name: loki-config-generator
           image: busybox:1.35.0-uclibc
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -c
