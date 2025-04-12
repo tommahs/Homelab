@@ -1,3 +1,4 @@
+---
 # grafana/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -13,15 +14,24 @@ resources:
   - pv.yaml
 
 replacements:
-  - source:
-      kind: Secret
-      name: grafana-secret
-      fieldPath: stringData.GF_ENDPOINT
-    targets:
-      - select:
-          kind: Ingress
-          name: grafana
-        fieldPaths:
-          - "spec.rules.0.host"
-patches:
-  - path: ingress-patch.yaml
+- source:
+    kind: Secret
+    name: grafana-secret
+    fieldPath: stringData.GF_ENDPOINT
+  targets:
+  - select:
+      kind: IngressRoute
+      name: grafana
+    fieldPaths:
+    - spec.routes.0.match
+    options:
+      delimiter: "`"
+      index: 1
+  - select:
+      kind: Certificate
+      name: grafana-tls
+    fieldPaths:
+    - spec.routes.0.match
+    options:
+      delimiter: "`"
+      index: 1
