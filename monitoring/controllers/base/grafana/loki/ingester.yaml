@@ -15,29 +15,62 @@ spec:
         app: loki
         component: ingester
     spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21  # Use Alpine, which includes envsubst
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/loki/config-template/loki.yaml.template and output to the writable volume
+            cat /etc/loki/config-template/loki.yaml.template | envsubst > /etc/loki/merged-loki.yaml
+            echo 'Merged config saved to /etc/loki/merged-loki.yaml'
+        volumeMounts:
+        - name: loki-config
+          mountPath: /etc/loki/config-template  # Mount ConfigMap to a different path
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: loki-secrets
+          mountPath: /loki-secrets
+        - name: merged-config
+          mountPath: /etc/loki # The writable volume where merged-loki.yaml will be written
+
       containers:
       - name: loki
         image: grafana/loki:2.9.0
+        imagePullPolicy: IfNotPresent
         args:
         - -target=ingester
-        - -config.file=/etc/loki/loki.yaml  # Use the S3 config for ingesters
+        - -config.file=/etc/loki/merged-loki.yaml  # Use the S3 config for ingesters
+        - -config.expand-env=true
         ports:
-        - containerPort: 3100
-          name: http
-        - containerPort: 9095
-          name: grpc
+          - containerPort: 3100
+            name: http
+          - containerPort: 9095
+            name: grpc
         volumeMounts:
-        - name: loki-config
-          mountPath: /etc/loki
-          subPath: loki.yaml  # Mount only the config file
-        - name: loki-wal
-          mountPath: /tmp/loki/wal  # Optional: WAL data can use emptyDir or a small local disk
+          - name: merged-config
+            mountPath: /etc/loki # The same writable volume where merged-loki.yaml is created
+          - name: loki-wal
+            mountPath: /tmp/loki/wal  # Optional: WAL data can use emptyDir or a small local disk
       volumes:
-      - name: loki-config
-        configMap:
-          name: loki-config
-      - name: loki-wal
-        emptyDir: {}  # Optional: Use emptyDir for WAL if you don't need persistent storage for it
+        - name: loki-config
+          configMap:
+            name: loki-config
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: loki-secrets
+          secret:
+            secretName: loki-secret
+        - name: merged-config
+          emptyDir: {}  # This ensures a writable volume for the init container and Loki container to share
+        - name: loki-wal
+          emptyDir: {}  # Optional: Use emptyDir for WAL if you don't need persistent storage for it
 ---
 apiVersion: v1
 kind: Service

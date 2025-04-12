@@ -18,6 +18,7 @@ spec:
       - name: config-merge
         image: alpine:3.21  # Use Alpine, which includes envsubst
         command: ["/bin/sh", "-c"]
+        imagePullPolicy: IfNotPresent
         args:
           - |
             apk add --no-cache gettext  # Install gettext (which provides envsubst)
@@ -39,6 +40,7 @@ spec:
       containers:
       - name: loki
         image: grafana/loki:2.9.0
+        imagePullPolicy: IfNotPresent
         args:
         - -target=distributor
         - -config.file=/etc/loki/merged-loki.yaml
@@ -51,11 +53,6 @@ spec:
         volumeMounts:
           - name: merged-config
             mountPath: /etc/loki # The same writable volume where merged-loki.yaml is created
-          - name: lgtm-s3-secrets
-            mountPath: /lgtm-s3-secrets
-          - name: loki-secrets
-            mountPath: /loki-secrets
-
       volumes:
         - name: loki-config
           configMap:
