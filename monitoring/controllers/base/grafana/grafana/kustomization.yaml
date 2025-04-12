@@ -12,6 +12,8 @@ resources:
   - secret.yaml
   - pvc.yaml
   - pv.yaml
+  - certificate.yaml
+  - ingress-middlewares.yaml
 
 replacements:
 - source:
