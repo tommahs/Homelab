@@ -11,7 +11,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`write-mimir.example.com`)
+      match: Host(`mimir.example.com`)
       priority: 10
       middlewares:
         - name: redirect-to-https

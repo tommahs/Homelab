@@ -30,3 +30,8 @@ replacements:
       options:
         delimiter: "`"
         index: 1
+    - select:
+        kind: Certificate
+        name: mimir-tls
+      fieldPaths:
+      - spec.dnsNames.0
