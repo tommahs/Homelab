@@ -11,7 +11,7 @@ data:
         backend: s3
         s3:
           endpoint: ${S3_ENDPOINT}
-          insecure: ${S3_INSECURE}
+          insecure: ${S3_SECURE_CONNECT}
           bucket_name: ${MIMIR_S3_BUCKET_NAME}
           access_key_id: ${S3_ACCESS_KEY}
           secret_access_key: ${S3_SECRET_KEY}
@@ -21,7 +21,7 @@ data:
       backend: s3
       s3:
         endpoint: ${S3_ENDPOINT}
-        insecure: ${S3_INSECURE}
+        insecure: ${S3_SECURE_CONNECT}
         bucket_name: ${MIMIR_S3_BUCKET_NAME}
         access_key_id: ${S3_ACCESS_KEY}
         secret_access_key: ${S3_SECRET_KEY}
@@ -47,11 +47,11 @@ data:
         kvstore:
           store: memberlist
         replication_factor: 3
-      lifecycler:
-        join_after: 0s
-        observe_period: 0s
-        final_sleep: 0s
-        num_tokens: 512
+        lifecycler:
+          join_after: 0s
+          observe_period: 0s
+          final_sleep: 0s
+          num_tokens: 512
 
     ruler:
       enable_api: true
@@ -60,15 +60,6 @@ data:
         kvstore:
           store: memberlist
       rule_path: /etc/mimir/rules
-      storage:
-        type: s3
-        s3:
-          endpoint: ${S3_ENDPOINT}
-          insecure: ${S3_INSECURE}
-          bucket_name: ${MIMIR_S3_BUCKET_NAME}
-          access_key_id: ${S3_ACCESS_KEY}
-          secret_access_key: ${S3_SECRET_KEY}
-          signature_version: v4
 
     server:
       http_listen_port: 8080
@@ -88,6 +79,5 @@ data:
       max_outstanding_requests_per_tenant: 100
 
     limits:
-      global:
-        max_query_parallelism: 16
-        max_query_length: 2160h
+      max_query_parallelism: 16
+      max_query_length: 2160h
