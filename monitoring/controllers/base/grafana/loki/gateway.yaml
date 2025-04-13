@@ -46,6 +46,10 @@ data:
       set $query_frontend_upstream "http://loki-query-frontend.observability.svc.cluster.local:3100";
       listen               3100;
 
+      location = / {
+        add_header Content-Type text/plain;
+        return 200 'loki-gateway OK';
+      }
       location = /api/prom/push {
         proxy_pass       $distributor_upstream$request_uri;
       }
