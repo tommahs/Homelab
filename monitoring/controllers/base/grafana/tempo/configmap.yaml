@@ -55,7 +55,7 @@ data:
           insecure: ${S3_SECURE_CONNECT}
           access_key: ${S3_ACCESS_KEY}
           secret_key: ${S3_SECRET_KEY}
-          force_path_style: ${S3_PATH_STYLE}
+          forcepathstyle: ${S3_PATH_STYLE}
         pool:
           max_workers: 100
           queue_depth: 10000
@@ -64,7 +64,7 @@ data:
       join_members:
         - tempo-memberlist
 
-    frontend:
+    query_frontend:
       scheduler_address: "tempo-query-scheduler:9095"
 
     querier:
