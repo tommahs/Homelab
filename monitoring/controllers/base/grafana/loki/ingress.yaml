@@ -12,6 +12,8 @@ spec:
     - kind: Rule
       match: Host(`loki.example.com`)
       priority: 10
+      middlewares:
+        - name: redirect-to-https
       services:
         - kind: Service
           name: loki-gateway

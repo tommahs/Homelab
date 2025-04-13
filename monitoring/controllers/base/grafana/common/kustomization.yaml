@@ -5,3 +5,4 @@ kind: Kustomization
 
 resources:
   - lgtm-s3-secret.yaml
+  - ingress-middlewares.yaml
