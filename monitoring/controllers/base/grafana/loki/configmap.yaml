@@ -15,37 +15,35 @@ data:
       replication_factor: 3
       storage:
         s3:
-          endpoint: ${S3_ENDPOINT}
-          insecure: ${S3_SECURE_CONNECT}
+          s3forcepathstyle: ${S3_PATH_STYLE}
           bucketnames: ${LOKI_S3_BUCKET_NAME}
+          endpoint: ${S3_ENDPOINT}
           access_key_id: ${S3_ACCESS_KEY}
           secret_access_key: ${S3_SECRET_KEY}
-          s3forcepathstyle: ${S3_PATH_STYLE}
-      compactor_address: loki-compactor
-      ring:
+          insecure: ${S3_SECURE_CONNECT}
+
+    compactor:
+      working_directory: /tmp/loki/compactor
+      retention_enabled: true
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 150
+      compaction_interval: 10m
+      delete_request_store: s3  # 👈 This line fixes the config error
+      compactor_ring:
         kvstore:
           store: memberlist
-
 
     schema_config:
       configs:
         - from: 2023-07-01
           store: tsdb
-          object_store: filesystem
+          object_store: s3
           schema: v13
           index:
             prefix: index_
             period: 24h
-    compactor:
-      working_directory: /tmp/loki/compactor
-      shared_store: s3
-      retention_enabled: true
-      retention_delete_delay: 2h
-      retention_delete_worker_count: 150
-      compaction_interval: 10m
 
     limits_config:
-      enforce_metric_name: false
       reject_old_samples: true
       reject_old_samples_max_age: 168h
       max_query_series: 10000
@@ -88,7 +86,6 @@ data:
       chunk_block_size: 262144
       chunk_target_size: 1536000
       chunk_retain_period: 30s
-      max_transfer_retries: 0
       wal:
         enabled: true
         dir: /tmp/loki/wal
@@ -102,7 +99,15 @@ data:
       cache_results: true
       results_cache:
         cache:
-          enable_fifocache: true
-          fifocache:
+          embedded_cache:
+            enabled: true
             max_size_items: 1024
-            validity: 24h
+
+    # New configuration for query frontend and scheduler
+    query_scheduler:
+      max_outstanding_requests_per_tenant: 4096
+      grpc_client_config:
+        max_send_msg_size: 104857600
+      scheduler_ring:
+        kvstore:
+          store: memberlist
