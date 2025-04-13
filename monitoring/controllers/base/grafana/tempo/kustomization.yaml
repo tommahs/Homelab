@@ -15,7 +15,7 @@ resources:
 replacements:
   - source:
       kind: Secret
-      name: mimir-secret
+      name: tempo-secret
       fieldPath: stringData.TEMPO_ENDPOINT
     targets:
     - select:
