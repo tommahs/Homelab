@@ -6,8 +6,8 @@ namespace: observability
 
 resources:
   - namespace.yaml
+  - common/
   - grafana/
   - loki/
-  # - mimir/
-  # - tempo/
-  - common/
+  - mimir/
+  - tempo/
