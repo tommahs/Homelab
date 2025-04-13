@@ -72,10 +72,10 @@ data:
 
     frontend:
       scheduler_address: "mimir-query-scheduler:9095"
-
-    querier:
+      
+    frontend_worker:
       scheduler_address: "mimir-query-scheduler:9095"
-      frontend_address: ""  # Empty to ensure no direct connection
+      frontend_address: ""
 
     query_scheduler:
       max_outstanding_requests_per_tenant: 100
