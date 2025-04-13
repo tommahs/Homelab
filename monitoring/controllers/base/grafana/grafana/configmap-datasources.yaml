@@ -11,7 +11,7 @@ data:
     - name: Loki
       type: loki
       access: proxy
-      url: http://loki-gateway:3100
+      url: http://loki-query-frontend:3100
       version: 1
     - name: Mimir
       type: prometheus
