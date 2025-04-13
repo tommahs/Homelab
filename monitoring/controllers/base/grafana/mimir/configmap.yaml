@@ -70,8 +70,22 @@ data:
       join_members:
         - mimir-memberlist
 
+    query_frontend:
+      # Connect the query-frontend to the scheduler
+      scheduler_address: mimir-query-scheduler.observability.svc.cluster.local:9095 # Adjust the service name according to your deployment
+
+    querier:
+      # Connect the querier to the scheduler instead of directly to frontend
+      frontend_address: ""
+      scheduler_address: mimir-query-scheduler.observability.svc.cluster.local:9095 # Adjust service name
+
     query_scheduler:
       max_outstanding_requests_per_tenant: 100
-
+      # Add service discovery configuration
+      service_discovery:
+        ring:
+          kvstore:
+            store: memberlist
+          replication_factor: 1
     limits:
       max_query_parallelism: 16
