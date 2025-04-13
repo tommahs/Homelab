@@ -1,0 +1,81 @@
+# tempo/query-frontend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo-query-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tempo
+      component: query-frontend
+  template:
+    metadata:
+      labels:
+        app: tempo
+        component: query-frontend
+    spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /tempo-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/tempo/config-template/tempo.yaml.template and output to the writable volume
+            cat /etc/tempo/config-template/tempo.yaml.template | envsubst > /etc/tempo/merged-tempo.yaml
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo/config-template
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: tempo-secrets
+          mountPath: /tempo-secrets
+        - name: merged-config
+          mountPath: /etc/tempo
+
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.7.2
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=query-frontend
+        - -config.file=/etc/tempo/merged-tempo.yaml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 3200
+          name: http
+        volumeMounts:
+          - name: merged-config
+            mountPath: /etc/tempo
+      
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: tempo-secrets
+          secret:
+            secretName: tempo-secret
+        - name: merged-config
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-query-frontend
+spec:
+  ports:
+  - port: 3200
+    name: http
+  - port: 9095
+    name: grpc
+  selector:
+    app: tempo
+    component: query-frontend

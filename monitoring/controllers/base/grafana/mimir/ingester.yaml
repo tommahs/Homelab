@@ -1,0 +1,84 @@
+# mimir/ingester.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mimir-ingester
+spec:
+  replicas: 3
+  serviceName: mimir-ingester
+  selector:
+    matchLabels:
+      app: mimir
+      component: ingester
+  template:
+    metadata:
+      labels:
+        app: mimir
+        component: ingester
+    spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /mimir-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/mimir/config-template/mimir.yaml.template and output to the writable volume
+            cat /etc/mimir/config-template/mimir.yaml.template | envsubst > /etc/mimir/merged-mimir.yaml
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir/config-template
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: mimir-secrets
+          mountPath: /mimir-secrets
+        - name: merged-config
+          mountPath: /etc/mimir
+
+      containers:
+      - name: mimir
+        image: grafana/mimir:2.16.0
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=ingester
+        - -config.file=/etc/mimir/merged-mimir.yaml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+          - name: merged-config
+            mountPath: /etc/mimir
+      volumes:
+        - name: mimir-config
+          configMap:
+            name: mimir-config
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: mimir-secrets
+          secret:
+            secretName: mimir-secret
+        - name: merged-config
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-ingester
+spec:
+  ports:
+  - port: 8080
+    name: http
+  - port: 9095
+    name: grpc
+  clusterIP: None
+  selector:
+    app: mimir
+    component: ingester

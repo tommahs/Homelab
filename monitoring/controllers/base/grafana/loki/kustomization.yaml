@@ -1,0 +1,37 @@
+# loki/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+  - distributor.yaml
+  - ingester.yaml
+  - compactor.yaml
+  - querier.yaml
+  - query-frontend.yaml
+  - gateway.yaml
+  - index-gateway.yaml
+  - ingress.yaml
+  - memberlist.yaml
+  - secret.yaml
+  - certificate.yaml
+
+replacements:
+- source:
+    kind: Secret
+    name: loki-secret
+    fieldPath: stringData.LOKI_ENDPOINT
+  targets:
+  - select:
+      kind: IngressRoute
+      name: loki
+    fieldPaths:
+    - spec.routes.0.match
+    options:
+      delimiter: "`"
+      index: 1
+  - select:
+      kind: Certificate
+      name: loki-tls
+    fieldPaths:
+    - spec.dnsNames.0

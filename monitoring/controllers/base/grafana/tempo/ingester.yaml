@@ -1,0 +1,85 @@
+# tempo/ingester.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tempo-ingester
+spec:
+  replicas: 3
+  serviceName: tempo-ingester
+  selector:
+    matchLabels:
+      app: tempo
+      component: ingester
+  template:
+    metadata:
+      labels:
+        app: tempo
+        component: ingester
+    spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /tempo-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/tempo/config-template/tempo.yaml.template and output to the writable volume
+            cat /etc/tempo/config-template/tempo.yaml.template | envsubst > /etc/tempo/merged-tempo.yaml
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo/config-template
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: tempo-secrets
+          mountPath: /tempo-secrets
+        - name: merged-config
+          mountPath: /etc/tempo
+
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.7.2
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=ingester
+        - -config.file=/etc/tempo/merged-tempo.yaml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 3200
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+          - name: merged-config
+            mountPath: /etc/tempo
+      
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: tempo-secrets
+          secret:
+            secretName: tempo-secret
+        - name: merged-config
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-ingester
+spec:
+  ports:
+  - port: 3200
+    name: http
+  - port: 9095
+    name: grpc
+  clusterIP: None
+  selector:
+    app: tempo
+    component: ingester

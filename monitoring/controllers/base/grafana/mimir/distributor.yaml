@@ -1,0 +1,83 @@
+# mimir/distributor.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mimir-distributor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mimir
+      component: distributor
+  template:
+    metadata:
+      labels:
+        app: mimir
+        component: distributor
+    spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21  # Use Alpine, which includes envsubst
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /mimir-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/mimir/config-template/mimir.yaml.template and output to the writable volume
+            cat /etc/mimir/config-template/mimir.yaml.template | envsubst > /etc/mimir/merged-mimir.yaml
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir/config-template  # Mount ConfigMap to a different path
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: mimir-secrets
+          mountPath: /mimir-secrets
+        - name: merged-config
+          mountPath: /etc/mimir # The writable volume where merged-mimir.yaml will be written
+          
+      containers:
+      - name: mimir
+        image: grafana/mimir:2.16.0
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=distributor
+        - -config.file=/etc/mimir/merged-mimir.yaml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+          - name: merged-config
+            mountPath: /etc/mimir # The same writable volume where merged-mimir.yaml is created
+      volumes:
+        - name: mimir-config
+          configMap:
+            name: mimir-config
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: mimir-secrets
+          secret:
+            secretName: mimir-secret
+        - name: merged-config
+          emptyDir: {}  # This ensures a writable volume for the init container and Loki container to share
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-distributor
+spec:
+  ports:
+  - port: 8080
+    name: http
+  - port: 9095
+    name: grpc
+  selector:
+    app: mimir
+    component: distributor

@@ -1,0 +1,81 @@
+# loki/compactor.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: loki-compactor
+spec:
+  replicas: 1
+  serviceName: loki-compactor
+  selector:
+    matchLabels:
+      app: loki
+      component: compactor
+  template:
+    metadata:
+      labels:
+        app: loki
+        component: compactor
+    spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21  # Use Alpine, which includes envsubst
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /loki-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/loki/config-template/loki.yaml.template and output to the writable volume
+            cat /etc/loki/config-template/loki.yaml.template | envsubst > /etc/loki/merged-loki.yaml
+        volumeMounts:
+        - name: loki-config
+          mountPath: /etc/loki/config-template  # Mount ConfigMap to a different path
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: loki-secrets
+          mountPath: /loki-secrets
+        - name: merged-config
+          mountPath: /etc/loki # The writable volume where merged-loki.yaml will be written
+
+      containers:
+      - name: loki
+        image: grafana/loki:3.4.3
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=compactor
+        - -config.file=/etc/loki/merged-loki.yaml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 3100
+          name: http
+        - containerPort: 9095
+          name: grpc
+        volumeMounts:
+          - name: merged-config
+            mountPath: /etc/loki # The same writable volume where merged-loki.yaml is created
+      volumes:
+        - name: loki-config
+          configMap:
+            name: loki-config
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: loki-secrets
+          secret:
+            secretName: loki-secret
+        - name: merged-config
+          emptyDir: {}  # This ensures a writable volume for the init container and Loki container to share
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-compactor
+spec:
+  ports:
+  - port: 3100
+    name: http
+  selector:
+    app: loki
+    component: compactor

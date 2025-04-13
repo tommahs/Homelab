@@ -1,0 +1,25 @@
+# grafana/configmap-datasources.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-query-frontend:3100
+      version: 1
+    - name: Mimir
+      type: prometheus
+      access: proxy
+      url: http://mimir-query-frontend:8080/prometheus
+      version: 1
+    - name: Tempo
+      type: tempo
+      access: proxy
+      url: http://tempo-query-frontend:3200
+      version: 1

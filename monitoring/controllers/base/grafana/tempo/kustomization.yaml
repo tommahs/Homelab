@@ -1,0 +1,34 @@
+# tempo/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+  - distributor.yaml
+  - ingester.yaml
+  - querier.yaml
+  - query-frontend.yaml
+  - memberlist.yaml
+  - compactor.yaml
+  - ingress.yaml
+  - secret.yaml
+
+replacements:
+  - source:
+      kind: Secret
+      name: tempo-secret
+      fieldPath: stringData.TEMPO_ENDPOINT
+    targets:
+    - select:
+        kind: IngressRoute
+        name: grafana
+      fieldPaths:
+      - spec.routes.0.match
+      options:
+        delimiter: "`"
+        index: 1
+    - select:
+        kind: Certificate
+        name: tempo-tls
+      fieldPaths:
+      - spec.dnsNames.0

@@ -1,0 +1,11 @@
+# tempo/memberlist.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-memberlist
+spec:
+  ports:
+  - port: 7946
+    name: memberlist
+  selector:
+    app: tempo

@@ -1,0 +1,35 @@
+---
+# grafana/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - configmap.yaml
+  - configmap-datasources.yaml
+  - secret.yaml
+  - pvc.yaml
+  - pv.yaml
+  - certificate.yaml
+
+replacements:
+- source:
+    kind: Secret
+    name: grafana-secret
+    fieldPath: stringData.GF_ENDPOINT
+  targets:
+  - select:
+      kind: IngressRoute
+      name: grafana
+    fieldPaths:
+    - spec.routes.0.match
+    options:
+      delimiter: "`"
+      index: 1
+  - select:
+      kind: Certificate
+      name: grafana-tls
+    fieldPaths:
+    - spec.dnsNames.0

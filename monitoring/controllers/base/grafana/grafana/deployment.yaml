@@ -1,0 +1,94 @@
+# grafana/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:11.6.0
+        ports:
+        - containerPort: 3000
+          name: http
+        volumeMounts:
+        - name: grafana-config
+          mountPath: /etc/grafana/grafana.ini
+          subPath: grafana.ini
+        - name: grafana-datasources
+          mountPath: /etc/grafana/provisioning/datasources
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-secret
+              key: GF_SECURITY_ADMIN_USER
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-secret
+              key: GF_SECURITY_ADMIN_PASSWORD
+        - name: GF_INSTALL_PLUGINS
+          value: "grafana-piechart-panel,grafana-worldmap-panel"  
+
+        - name: GF_SECURITY_ALLOW_EMBEDDING
+          value: "true"
+        # Grafana endpoint
+        - name: GRAFANA_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: grafana-secret
+              key: GF_ENDPOINT
+        # S3 secrets
+        - name: GF_S3_BUCKET_NAME
+          valueFrom:
+            secretKeyRef:
+              name: grafana-secret
+              key: GF_S3_BUCKET_NAME
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: lgtm-s3-secret
+              key: S3_ACCESS_KEY
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: lgtm-s3-secret
+              key: S3_SECRET_KEY
+        - name: S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: lgtm-s3-secret              
+              key: S3_ENDPOINT
+        - name: S3_SECURE_CONNECT
+          valueFrom:
+            secretKeyRef:
+              name: lgtm-s3-secret
+              key: S3_SECURE_CONNECT
+        - name: S3_PATH_STYLE
+          valueFrom:
+            secretKeyRef:
+              name: lgtm-s3-secret
+              key: S3_PATH_STYLE
+      volumes:
+        - name: grafana-config
+          configMap:
+            name: grafana-config
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
+        # secret
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: grafana-secret
+          secret:
+            secretName: loki-secret

@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-tls
+  namespace: observability
+spec:
+  secretName: grafana-tls
+  dnsNames:
+    - PLACEHOLDER_GF_ENDPOINT
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

@@ -1,0 +1,104 @@
+# tempo/distributor.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo-distributor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tempo
+      component: distributor
+  template:
+    metadata:
+      labels:
+        app: tempo
+        component: distributor
+    spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21  # Use Alpine, which includes envsubst
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /tempo-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/tempo/config-template/tempo.yaml.template and output to the writable volume
+            cat /etc/tempo/config-template/tempo.yaml.template | envsubst > /etc/tempo/merged-tempo.yaml
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo/config-template  # Mount ConfigMap to a different path
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: tempo-secrets
+          mountPath: /tempo-secrets
+        - name: merged-config
+          mountPath: /etc/tempo # The writable volume where merged-tempo.yaml will be written
+          
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.7.2
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=distributor
+        - -config.file=/etc/tempo/merged-tempo.yaml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 3200
+          name: http
+        - containerPort: 9095
+          name: grpc
+        - containerPort: 14268
+          name: jaeger-thrift
+        - containerPort: 14250
+          name: jaeger-grpc
+        - containerPort: 9411
+          name: zipkin
+        - containerPort: 4317
+          name: otlp-grpc
+        - containerPort: 4318
+          name: otlp-http
+        volumeMounts:
+          - name: merged-config
+            mountPath: /etc/tempo
+      
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: lgtm-s3-secrets
+          secret:
+            secretName: lgtm-s3-secret
+        - name: tempo-secrets
+          secret:
+            secretName: tempo-secret
+        - name: merged-config
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-distributor
+spec:
+  ports:
+  - port: 3200
+    name: http
+  - port: 9095
+    name: grpc
+  - port: 14268
+    name: jaeger-thrift
+  - port: 14250
+    name: jaeger-grpc
+  - port: 9411
+    name: zipkin
+  - port: 4317
+    name: otlp-grpc
+  - port: 4318
+    name: otlp-http
+  selector:
+    app: tempo
+    component: distributor
