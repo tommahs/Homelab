@@ -15,27 +15,16 @@ resources:
   - secret.yaml
 
 replacements:
-  # Existing replacements
-  - source:
-      kind: Secret
-      name: mimir-secret
-      fieldPath: stringData.MIMIR_READ_ENDPOINT
-    targets:
-      - select:
-          kind: Ingress
-          name: mimir
-        fieldPaths:
-          - "spec.rules.0.host"
   - source:
       kind: Secret
       name: mimir-secret
       fieldPath: stringData.MIMIR_WRITE_ENDPOINT
     targets:
-      - select:
-          kind: Ingress
-          name: mimir
-        fieldPaths:
-          - "spec.rules.0.host"
-
-patches:
-  - path: ingress-patch.yaml
+    - select:
+        kind: IngressRoute
+        name: grafana
+      fieldPaths:
+      - spec.routes.0.match
+      options:
+        delimiter: "`"
+        index: 1
