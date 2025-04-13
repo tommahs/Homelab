@@ -38,11 +38,11 @@ data:
         kvstore:
           store: memberlist
         replication_factor: 3
-      lifecycler:
-        join_after: 0s
-        observe_period: 0s
-        final_sleep: 0s
-        num_tokens: 512
+        lifecycler:
+          join_after: 0s
+          observe_period: 0s
+          final_sleep: 0s
+          num_tokens: 512
 
     ruler:
       enable_api: true
@@ -51,15 +51,6 @@ data:
         kvstore:
           store: memberlist
       rule_path: /etc/mimir/rules
-      storage:
-        backend: s3
-        s3:
-          endpoint: ${S3_ENDPOINT}
-          insecure: ${S3_SECURE_CONNECT}
-          bucket_name: ${MIMIR_S3_RULER_BUCKET_NAME}
-          access_key_id: ${S3_ACCESS_KEY}
-          secret_access_key: ${S3_SECRET_KEY}
-          signature_version: v4
 
     server:
       http_listen_port: 8080
@@ -75,13 +66,11 @@ data:
       join_members:
         - mimir-memberlist
 
-    query_scheduler:
-      service_discovery:
-        type: dns
-        dns:
-          address: mimir-querier.observability.svc.cluster.local:8080
+    query_scheduler: {}  # service_discovery is not needed in v2.15
 
     limits:
-      max_query_parallelism: 16
-      max_query_length: 2160h
+      global:
+        max_query_parallelism: 16
+        max_query_length: 2160h
+
 
