@@ -29,6 +29,7 @@ spec:
             
             # Use envsubst to replace placeholders in /etc/tempo/config-template/tempo.yaml.template and output to the writable volume
             cat /etc/tempo/config-template/tempo.yaml.template | envsubst > /etc/tempo/merged-tempo.yaml
+            cat /etc/tempo/merged-tempo.yaml
         volumeMounts:
         - name: tempo-config
           mountPath: /etc/tempo/config-template

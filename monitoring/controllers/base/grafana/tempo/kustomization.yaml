@@ -8,6 +8,7 @@ resources:
   - ingester.yaml
   - querier.yaml
   - query-frontend.yaml
+  - memberlist.yaml
   - compactor.yaml
   - ingress.yaml
   - secret.yaml
