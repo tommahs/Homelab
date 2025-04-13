@@ -27,3 +27,8 @@ replacements:
       options:
         delimiter: "`"
         index: 1
+    - select:
+        kind: Certificate
+        name: tempo-tls
+      fieldPaths:
+      - spec.dnsNames.0
