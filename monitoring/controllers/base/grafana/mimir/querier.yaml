@@ -40,7 +40,7 @@ spec:
 
       containers:
       - name: mimir
-        image: grafana/mimir:2.10.3
+        image: grafana/mimir:2.15.2
         imagePullPolicy: IfNotPresent
         args:
         - -target=querier
