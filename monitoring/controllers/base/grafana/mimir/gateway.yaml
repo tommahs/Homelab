@@ -1,0 +1,100 @@
+---
+# loki/gateway.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: loki
+      component: gateway
+  template:
+    metadata:
+      labels:
+        app: loki
+        component: gateway
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.27-alpine
+        ports:
+        - containerPort: 3100
+          name: http
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: loki-gateway
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-gateway
+data:
+  nginx.conf: |
+    
+    tcp_nopush   on;
+    resolver kube-dns.kube-system.svc.cluster.local valid=30s ipv6=off;
+    server {
+      set $distributor_upstream "http://loki-distributor.observability.svc.cluster.local:3100";
+      set $querier_upstream "http://loki-querier.observability.svc.cluster.local:3100";
+      set $query_frontend_upstream "http://loki-query-frontend.observability.svc.cluster.local:3100";
+      listen               3100;
+
+      location = / {
+        add_header Content-Type text/plain;
+        return 200 'loki-gateway OK';
+      }
+      location = /api/prom/push {
+        proxy_pass       $distributor_upstream$request_uri;
+      }
+
+      location = /api/prom/tail {
+        proxy_pass       $querier_upstream$request_uri;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+
+      location ~ /api/prom/.* {
+        proxy_pass       $query_frontend_upstream$request_uri;
+      }
+
+      location = /loki/api/v1/push {
+        proxy_pass       $distributor_upstream$request_uri;
+      }
+
+      location = /loki/api/v1/tail {
+        proxy_pass       $querier_upstream$request_uri;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+
+      location ~ /loki/api/.* {
+        proxy_pass       $query_frontend_upstream$request_uri;
+      }
+    }
+    server {
+      listen 8080;
+      access_log /dev/null;
+      location /stub_status {
+        stub_status;
+      }
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-gateway
+spec:
+  ports:
+  - port: 3100
+    name: http
+  selector:
+    app: loki
+    component: gateway

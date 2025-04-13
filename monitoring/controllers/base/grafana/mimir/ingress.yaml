@@ -1,28 +1,5 @@
-# mimir/ingress.yaml
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: mimir-read
-  namespace: observability
-spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - kind: Rule
-      match: Host(`read-mimir.example.com`)
-      priority: 10
-      services:
-        - kind: Service
-          name: mimir-query-frontend
-          namespace: observability
-          passHostHeader: true
-          port: 8080
-          responseForwarding:
-            flushInterval: 1ms
-  tls:
-    secretName: mimir-read-tls
 ---
+# mimir/ingress.yaml
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -36,6 +13,9 @@ spec:
     - kind: Rule
       match: Host(`write-mimir.example.com`)
       priority: 10
+      middlewares:
+        - name: redirect-to-https
+        - name: mimir-default
       services:
         - kind: Service
           name: mimir-distributor

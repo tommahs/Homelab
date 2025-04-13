@@ -15,54 +15,58 @@ spec:
         app: mimir
         component: distributor
     spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21  # Use Alpine, which includes envsubst
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /mimir-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/mimir/config-template/mimir.yaml.template and output to the writable volume
+            cat /etc/mimir/config-template/mimir.yaml.template | envsubst > /etc/mimir/merged-mimir.yaml
+        volumeMounts:
+        - name: mimir-config
+          mountPath: /etc/mimir/config-template  # Mount ConfigMap to a different path
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: mimir-secrets
+          mountPath: /mimir-secrets
+        - name: merged-config
+          mountPath: /etc/mimir # The writable volume where merged-mimir.yaml will be written
+          
       containers:
       - name: mimir
         image: grafana/mimir:2.10.3
+        imagePullPolicy: IfNotPresent
         args:
         - -target=distributor
-        - -config.file=/etc/mimir/mimir.yaml
+        - -config.file=/etc/mimir/merged-mimir.yaml
+        - -config.expand-env=true
         ports:
         - containerPort: 8080
           name: http
         - containerPort: 9095
           name: grpc
         volumeMounts:
-        - name: generated-config
-          mountPath: /etc/mimir
-
-      initContainers:
-        - name: config-generator
-          image: busybox:1.36
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              for f in /common-s3-secrets/*; do export $(basename $f)=$(cat $f); done
-              for f in /mimir-secrets/*; do export $(basename $f)=$(cat $f); done
-              envsubst < /config/mimir.yaml.template > /generated/mimir.yaml
-          volumeMounts:
-            - name: config-template
-              mountPath: /config
-            - name: common-s3-secrets
-              mountPath: /common-s3-secrets
-            - name: mimir-secrets
-              mountPath: /mimir-secrets
-            - name: generated-config
-              mountPath: /generated
-              
+          - name: merged-config
+            mountPath: /etc/mimir # The same writable volume where merged-mimir.yaml is created
       volumes:
-        - name: config-template
+        - name: mimir-config
           configMap:
-            name: mimir-config-template
-        - name: common-s3-secrets
+            name: mimir-config
+        - name: lgtm-s3-secrets
           secret:
             secretName: lgtm-s3-secret
         - name: mimir-secrets
           secret:
             secretName: mimir-secret
-        - name: generated-config
-          configMap:
-            name: generated-config
-            emptyDir: {}
+        - name: merged-config
+          emptyDir: {}  # This ensures a writable volume for the init container and Loki container to share
+
 ---
 apiVersion: v1
 kind: Service

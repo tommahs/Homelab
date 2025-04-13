@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mimir-config-template
+  name: mimir-config
 data:
-  mimir.yaml.template: |
+  mimir.yaml: |
     multitenancy_enabled: false
     
     blocks_storage:
