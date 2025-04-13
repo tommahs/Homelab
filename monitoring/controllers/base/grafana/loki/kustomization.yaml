@@ -14,18 +14,24 @@ resources:
   - ingress.yaml
   - memberlist.yaml
   - secret.yaml
-  
-replacements:
-  - source:
-      kind: Secret
-      name: loki-secret
-      fieldPath: stringData.LOKI_ENDPOINT
-    targets:
-      - select:
-          kind: Ingress
-          name: loki
-        fieldPaths:
-          - "spec.rules.0.host"
+  - certificate.yaml
 
-patches:
-  - path: ingress-patch.yaml
+replacements:
+- source:
+    kind: Secret
+    name: loki-secret
+    fieldPath: stringData.LOKI_ENDPOINT
+  targets:
+  - select:
+      kind: IngressRoute
+      name: loki
+    fieldPaths:
+    - spec.routes.0.match
+    options:
+      delimiter: "`"
+      index: 1
+  - select:
+      kind: Certificate
+      name: loki-tls
+    fieldPaths:
+    - spec.dnsNames.0

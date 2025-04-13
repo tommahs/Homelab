@@ -13,7 +13,6 @@ resources:
   - pvc.yaml
   - pv.yaml
   - certificate.yaml
-  - ingress-middlewares.yaml
 
 replacements:
 - source:
@@ -33,7 +32,4 @@ replacements:
       kind: Certificate
       name: grafana-tls
     fieldPaths:
-    - spec.routes.0.match
-    options:
-      delimiter: "`"
-      index: 1
+    - spec.dnsNames.0

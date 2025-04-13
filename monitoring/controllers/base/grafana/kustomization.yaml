@@ -8,7 +8,6 @@ resources:
   - namespace.yaml
   - grafana/
   - loki/
-  - mimir/
-  - tempo/
-  # The common folder only contains examples on the expected variables
-  # - common/
+  # - mimir/
+  # - tempo/
+  - common/

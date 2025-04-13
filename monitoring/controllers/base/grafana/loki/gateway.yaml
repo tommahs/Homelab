@@ -1,3 +1,4 @@
+---
 # loki/gateway.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -17,7 +18,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.25.3-alpine
+        image: nginx:1.27-alpine
         ports:
         - containerPort: 3100
           name: http
@@ -36,21 +37,51 @@ metadata:
   name: loki-gateway
 data:
   nginx.conf: |
+    
+    tcp_nopush   on;
+    resolver kube-dns.kube-system.svc.cluster.local valid=30s ipv6=off;
     server {
-      listen 3100;
-      
-      location = / {
-        return 200 'Loki Gateway';
+      set $distributor_upstream "http://loki-distributor.observability.svc.cluster.local:3100";
+      set $querier_upstream "http://loki-querier.observability.svc.cluster.local:3100";
+      set $query_frontend_upstream "http://loki-query-frontend.observability.svc.cluster.local:3100";
+      listen               3100;
+
+      location = /api/prom/push {
+        proxy_pass       $distributor_upstream$request_uri;
+      }
+
+      location = /api/prom/tail {
+        proxy_pass       $querier_upstream$request_uri;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+
+      location ~ /api/prom/.* {
+        proxy_pass       $query_frontend_upstream$request_uri;
       }
 
       location = /loki/api/v1/push {
-        proxy_pass http://loki-distributor:3100$request_uri;
+        proxy_pass       $distributor_upstream$request_uri;
       }
-      
+
+      location = /loki/api/v1/tail {
+        proxy_pass       $querier_upstream$request_uri;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+
       location ~ /loki/api/.* {
-        proxy_pass http://loki-query-frontend:3100$request_uri;
+        proxy_pass       $query_frontend_upstream$request_uri;
       }
     }
+    server {
+      listen 8080;
+      access_log /dev/null;
+      location /stub_status {
+        stub_status;
+      }
+    }
+
 ---
 apiVersion: v1
 kind: Service

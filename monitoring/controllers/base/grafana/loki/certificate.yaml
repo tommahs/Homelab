@@ -2,12 +2,12 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: grafana-tls
+  name: loki-tls
   namespace: observability
 spec:
-  secretName: grafana-tls
+  secretName: loki-tls
   dnsNames:
-    - PLACEHOLDER_GF_ENDPOINT
+    - loki.example.com
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

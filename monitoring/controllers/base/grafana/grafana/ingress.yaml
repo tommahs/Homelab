@@ -11,7 +11,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`PLACEHOLDER_GF_ENDPOINT`)
+      match: Host(`grafana.example.com`)
       priority: 10
       services:
         - kind: Service
