@@ -70,16 +70,11 @@ data:
       join_members:
         - mimir-memberlist
 
-    query_frontend:
+    frontend:
       ring:
         kvstore:
           store: memberlist
 
-    querier:
-      ring:
-        kvstore:
-          store: memberlist
-      
     query_scheduler:
       max_outstanding_requests_per_tenant: 100
       ring:
