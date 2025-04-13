@@ -40,7 +40,7 @@ spec:
 
       containers:
       - name: mimir
-        image: grafana/mimir:2.15.2
+        image: grafana/mimir:2.16.0
         imagePullPolicy: IfNotPresent
         args:
         - -target=ruler
