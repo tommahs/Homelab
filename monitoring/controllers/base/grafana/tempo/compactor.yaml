@@ -38,7 +38,7 @@ spec:
           mountPath: /tempo-secrets
         - name: merged-config
           mountPath: /etc/tempo
-
+          
       containers:
       - name: tempo
         image: grafana/tempo:2.7.2
@@ -50,6 +50,8 @@ spec:
         ports:
         - containerPort: 3200
           name: http
+        - containerPort: 9095
+          name: grpc
         volumeMounts:
         - name: tempo-config
           mountPath: /etc/tempo
