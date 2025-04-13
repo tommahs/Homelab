@@ -64,6 +64,9 @@ data:
       join_members:
         - tempo-memberlist
 
-    overrides:
-      max_search_bytes_per_trace: 1_000_000_000
-      max_bytes_per_tag_values_query: 5_000_000
+    frontend:
+      scheduler_address: "tempo-query-scheduler:9095"
+
+    querier:
+      frontend:
+        scheduler_address: "tempo-query-scheduler:9095"

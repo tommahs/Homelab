@@ -1,20 +1,19 @@
-# tempo/ingester.yaml
+# tempo/query-scheduler.yaml
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: tempo-ingester
+  name: tempo-query-scheduler
 spec:
-  replicas: 3
-  serviceName: tempo-ingester
+  replicas: 2
   selector:
     matchLabels:
       app: tempo
-      component: ingester
+      component: query-scheduler
   template:
     metadata:
       labels:
         app: tempo
-        component: ingester
+        component: query-scheduler
     spec:
       initContainers:
       - name: config-merge
@@ -44,14 +43,12 @@ spec:
         image: grafana/tempo:2.7.2
         imagePullPolicy: IfNotPresent
         args:
-        - -target=ingester
+        - -target=query-scheduler
         - -config.file=/etc/tempo/merged-tempo.yaml
         - -config.expand-env=true
         ports:
         - containerPort: 3200
           name: http
-        - containerPort: 9095
-          name: grpc
         volumeMounts:
         - name: tempo-config
           mountPath: /etc/tempo
@@ -71,14 +68,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: tempo-ingester
+  name: tempo-query-scheduler
 spec:
   ports:
   - port: 3200
     name: http
   - port: 9095
     name: grpc
-  clusterIP: None
   selector:
     app: tempo
-    component: ingester
+    component: query-scheduler

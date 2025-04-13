@@ -15,12 +15,37 @@ spec:
         app: tempo
         component: distributor
     spec:
+      initContainers:
+      - name: config-merge
+        image: alpine:3.21  # Use Alpine, which includes envsubst
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache gettext  # Install gettext (which provides envsubst)
+            for f in /lgtm-s3-secrets/*; do export $(basename $f)=$(cat $f); done
+            for f in /tempo-secrets/*; do export $(basename $f)=$(cat $f); done
+            
+            # Use envsubst to replace placeholders in /etc/tempo/config-template/tempo.yaml.template and output to the writable volume
+            cat /etc/tempo/config-template/tempo.yaml.template | envsubst > /etc/tempo/merged-tempo.yaml
+        volumeMounts:
+        - name: tempo-config
+          mountPath: /etc/tempo/config-template  # Mount ConfigMap to a different path
+        - name: lgtm-s3-secrets
+          mountPath: /lgtm-s3-secrets
+        - name: tempo-secrets
+          mountPath: /tempo-secrets
+        - name: merged-config
+          mountPath: /etc/tempo # The writable volume where merged-tempo.yaml will be written
+          
       containers:
       - name: tempo
-        image: grafana/tempo:2.3.0
+        image: grafana/tempo:2.7.2
+        imagePullPolicy: IfNotPresent
         args:
         - -target=distributor
-        - -config.file=/etc/tempo/tempo.yaml
+        - -config.file=/etc/tempo/merged-tempo.yaml
+        - -config.expand-env=true
         ports:
         - containerPort: 3200
           name: http
@@ -37,40 +62,22 @@ spec:
         - containerPort: 4318
           name: otlp-http
         volumeMounts:
-          - name: generated-config
+          - name: merged-config
             mountPath: /etc/tempo
-
-      initContainers:
-        - name: config-generator
-          image: busybox:1.36
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              for f in /common-s3-secrets/*; do export $(basename $f)=$(cat $f); done
-              for f in /tempo-secrets/*; do export $(basename $f)=$(cat $f); done
-              envsubst < /config/tempo.yaml.template > /generated/tempo.yaml
-          volumeMounts:
-            - name: config-template
-              mountPath: /config
-            - name: common-s3-secrets
-              mountPath: /common-s3-secrets
-            - name: tempo-secrets
-              mountPath: /tempo-secrets
-            - name: generated-config
-              mountPath: /generated
-              
+      
       volumes:
-        - name: config-template
+        - name: tempo-config
           configMap:
-            name: tempo-config-template
-        - name: common-s3-secrets
+            name: tempo-config
+        - name: lgtm-s3-secrets
           secret:
             secretName: lgtm-s3-secret
         - name: tempo-secrets
           secret:
             secretName: tempo-secret
-        - name: generated-config
+        - name: merged-config
           emptyDir: {}
+
 ---
 apiVersion: v1
 kind: Service

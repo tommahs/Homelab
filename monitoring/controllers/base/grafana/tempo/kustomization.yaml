@@ -34,6 +34,3 @@ replacements:
           name: tempo
         fieldPaths:
           - "spec.rules.0.host"
-
-patches:
-  - path: ingress-patch.yaml
