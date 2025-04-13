@@ -70,19 +70,18 @@ data:
       join_members:
         - mimir-memberlist
 
-    query_frontend:
+    frontend:
       scheduler_address: "mimir-query-scheduler:9095"
 
     querier:
       scheduler_address: "mimir-query-scheduler:9095"
       frontend_address: ""  # Empty to ensure no direct connection
-      
+
     query_scheduler:
       max_outstanding_requests_per_tenant: 100
-      service_discovery:
-        ring:
-          kvstore:
-            store: memberlist
+      ring:
+        kvstore:
+          store: memberlist
             
     limits:
       max_query_parallelism: 16
