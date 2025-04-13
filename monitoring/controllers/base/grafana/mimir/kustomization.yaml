@@ -9,6 +9,7 @@ resources:
   - ingester.yaml
   - querier.yaml
   - query-frontend.yaml
+  - query-scheduler.yaml
   - store-gateway.yaml
   - compactor.yaml
   - ruler.yaml
