@@ -64,9 +64,6 @@ data:
       join_members:
         - tempo-memberlist
 
-    query_frontend:
-      scheduler_address: "tempo-query-scheduler:9095"
-
     querier:
-      frontend:
-        scheduler_address: "tempo-query-scheduler:9095"
+      frontend_worker:
+        frontend_address: "tempo-query-frontend:9095"
