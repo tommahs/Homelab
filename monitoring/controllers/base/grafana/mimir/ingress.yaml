@@ -15,10 +15,9 @@ spec:
       priority: 10
       middlewares:
         - name: redirect-to-https
-        - name: mimir-default
       services:
         - kind: Service
-          name: mimir-distributor
+          name: mimir-gateway
           namespace: observability
           passHostHeader: true
           port: 8080
