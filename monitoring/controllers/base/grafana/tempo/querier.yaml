@@ -52,8 +52,9 @@ spec:
         - containerPort: 9095
           name: grpc
         volumeMounts:
-        - name: tempo-config
-          mountPath: /etc/tempo
+          - name: merged-config
+            mountPath: /etc/tempo
+      
       volumes:
         - name: tempo-config
           configMap:
