@@ -8,23 +8,3 @@ spec:
   redirectScheme:
     scheme: https
     permanent: true
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: deny-access
-spec:
-  replaceResponse:
-    statusCode: 403
-    content: "Forbidden\n"
-    contentType: text/plain
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: mimir-default
-spec:
-  replaceResponse:
-    statusCode: 200
-    content: "mimir service is OK\n"
-    contentType: text/plain
