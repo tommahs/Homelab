@@ -72,5 +72,3 @@ data:
       global:
         max_query_parallelism: 16
         max_query_length: 2160h
-
-
