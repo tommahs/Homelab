@@ -13,24 +13,16 @@ resources:
   - secret.yaml
 
 replacements:
-  # Existing replacements
   - source:
       kind: Secret
-      name: tempo-secret
-      fieldPath: stringData.TEMPO_READ_ENDPOINT
+      name: mimir-secret
+      fieldPath: stringData.TEMPO_ENDPOINT
     targets:
-      - select:
-          kind: Ingress
-          name: tempo
-        fieldPaths:
-          - "spec.rules.0.host"
-  - source:
-      kind: Secret
-      name: tempo-secret
-      fieldPath: stringData.TEMPO_WRITE_ENDPOINT
-    targets:
-      - select:
-          kind: Ingress
-          name: tempo
-        fieldPaths:
-          - "spec.rules.0.host"
+    - select:
+        kind: IngressRoute
+        name: grafana
+      fieldPaths:
+      - spec.routes.0.match
+      options:
+        delimiter: "`"
+        index: 1

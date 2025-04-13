@@ -1,28 +1,5 @@
-# tempo/ingress.yaml
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: tempo-read
-  namespace: observability
-spec:
-  entryPoints:
-    - web
-    - websecure
-  routes:
-    - kind: Rule
-      match: Host(`read-tempo.example.com`)
-      priority: 10
-      services:
-        - kind: Service
-          name: tempo-query-frontend
-          namespace: observability
-          passHostHeader: true
-          port: 8080
-          responseForwarding:
-            flushInterval: 1ms
-  tls:
-    secretName: tempo-read-tls
 ---
+# tempo/ingress.yaml
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
