@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: mimir-config
 data:
-  mimir.yaml: |
+  mimir.yaml.template: |
     multitenancy_enabled: false
     
     blocks_storage:
