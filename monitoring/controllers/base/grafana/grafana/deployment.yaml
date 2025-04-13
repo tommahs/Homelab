@@ -15,13 +15,11 @@ spec:
     spec:
       containers:
       - name: grafana
-        image: grafana/grafana:10.2.0
+        image: grafana/grafana:11.6.0
         ports:
         - containerPort: 3000
           name: http
         volumeMounts:
-        # - name: grafana-storage
-        #   mountPath: /var/lib/grafana
         - name: grafana-config
           mountPath: /etc/grafana/grafana.ini
           subPath: grafana.ini
@@ -81,9 +79,6 @@ spec:
               name: lgtm-s3-secret
               key: S3_PATH_STYLE
       volumes:
-      # - name: grafana-storage
-      #   persistentVolumeClaim:
-      #     claimName: grafana-storage
         - name: grafana-config
           configMap:
             name: grafana-config
