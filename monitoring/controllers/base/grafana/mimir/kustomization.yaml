@@ -4,6 +4,7 @@ kind: Kustomization
 
 resources:
   - configmap.yaml
+  - memberlist.yaml
   - distributor.yaml
   - ingester.yaml
   - querier.yaml
