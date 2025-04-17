@@ -18,6 +18,11 @@ spec:
           image: ollama/ollama:latest
           ports:
             - containerPort: 11434
+          resources:
+            requests:
+              memory: "20Gi"
+            limits:
+              memory: "32Gi"
           volumeMounts:
             - name: ollama-storage
               mountPath: /root/.ollama
@@ -48,6 +53,11 @@ spec:
           image: ghcr.io/open-webui/open-webui:latest
           ports:
             - containerPort: 8080
+          resources:
+            requests:
+              memory: "1Gi"
+            limits:
+              memory: "4Gi"
           env:
             - name: OLLAMA_BASE_URL
               value: "http://ollama-service.ollama"
