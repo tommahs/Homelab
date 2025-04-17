@@ -1,0 +1,19 @@
+---
+# crds/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: prometheus-operator
+
+resources:
+  - alertmanagerconfigs.monitoring.coreos.com.yaml
+  - alertmanagers.monitoring.coreos.com.yaml
+  - kustomization.yaml
+  - podmonitors.monitoring.coreos.com.yaml
+  - probes.monitoring.coreos.com.yaml
+  - prometheusagents.monitoring.coreos.com.yaml
+  - prometheuses.monitoring.coreos.com.yaml
+  - prometheusrules.monitoring.coreos.com.yaml
+  - scrapeconfigs.monitoring.coreos.com.yaml
+  - servicemonitors.monitoring.coreos.com.yaml
+  - thanosrulers.monitoring.coreos.com.yaml
