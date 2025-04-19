@@ -1,0 +1,11 @@
+resources:
+  - deployment.yaml
+  - configmap.yaml
+  - serviceaccount.yaml
+  - clusterrole.yaml
+  - clusterrolebinding.yaml
+
+configMapGenerator:
+  - name: promtail-config
+    files:
+      - promtail.yaml=config/promtail.yaml
