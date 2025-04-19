@@ -22,12 +22,14 @@ spec:
           fieldPath: spec.nodeName
   config: 
     receivers:
-      kubeletstats:
+      kubeletstats: 
         collection_interval: 20s
         auth_type: "serviceAccount"
         ca_file: "/etc/otel/certs/kubelet-ca.crt"
         endpoint: "${K8S_NODE_NAME}:10250"
-
+        k8s_api_config:
+          auth_type: serviceAccount
+          
       # For application metrics (Prometheus format)
       prometheus:
         config:
