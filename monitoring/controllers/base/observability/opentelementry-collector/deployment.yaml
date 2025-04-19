@@ -4,8 +4,9 @@ metadata:
   name: otel-collector
   namespace: observability
 spec:
+  image: otel/opentelemetry-collector-contrib:latest 
   mode: daemonset
-  config: |
+  config: 
     receivers:
       # For Kubernetes metrics
       kubeletstats:
@@ -66,16 +67,8 @@ spec:
           insecure: true
       
       # For logs to Loki
-      loki:
-        endpoint: "http://loki-gateway.observability.svc.cluster.local:3100/loki/api/v1/push"
-        # tenant_id: "fake"
-        labels:
-          resource:
-            pod: "k8s.pod.name"
-            namespace: "k8s.namespace.name"
-            node: "k8s.node.name"
-            container: "k8s.container.name"
-      
+      otlphttp:
+        endpoint: "http://loki-gateway.observability.svc.cluster.local:3100/otlp/v1/logs"
       # For traces to Tempo
       otlp:
         endpoint: tempo-distributor.observability.svc.cluster.local:4317
@@ -91,7 +84,7 @@ spec:
         logs:
           receivers: [filelog]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [loki]
+          exporters: [otlphttp]
         traces:
           receivers: [otlp]
           processors: [memory_limiter, k8sattributes, batch]

@@ -5,10 +5,6 @@ kind: Kustomization
 namespace: observability
 
 resources:
-  - namespace.yaml
-  - common/
-  - grafana/
-  - loki/
-  - mimir/
-  - tempo/
-  - opentelementry-collector/
+  - clusterrole.yaml
+  - clusterrolebinding.yaml
+  - deployment.yaml
