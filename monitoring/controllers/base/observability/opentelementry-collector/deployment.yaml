@@ -15,15 +15,19 @@ spec:
       hostPath:
         path: /var/lib/kubelet/pki/kubelet.crt  # Path to specific CA file on host
         type: File
+  env:
+    - name: K8S_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
   config: 
     receivers:
       kubeletstats:
         collection_interval: 20s
         auth_type: "serviceAccount"
+        ca_file: "/etc/otel/certs/kubelet-ca.crt"
         endpoint: "${K8S_NODE_NAME}:10250"
-        tls:
-          ca_file: "/etc/otel/certs/kubelet-ca.crt"
-      
+
       # For application metrics (Prometheus format)
       prometheus:
         config:
