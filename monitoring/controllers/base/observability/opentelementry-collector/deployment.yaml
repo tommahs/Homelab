@@ -13,6 +13,8 @@ spec:
         collection_interval: 20s
         auth_type: "serviceAccount"
         endpoint: "${K8S_NODE_NAME}:10250"
+        tls:
+          insecure: true
       
       # For application metrics (Prometheus format)
       prometheus:
