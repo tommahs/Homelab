@@ -6,15 +6,23 @@ metadata:
 spec:
   image: otel/opentelemetry-collector-contrib:latest 
   mode: daemonset
+  volumeMounts:
+    - mountPath: /etc/otel/certs/kubelet-ca.crt
+      name: kubelet-ca-cert
+      readOnly: true
+  volumes:
+    - name: kubelet-ca-cert
+      hostPath:
+        path: /var/lib/kubelet/pki/kubelet.crt  # Path to specific CA file on host
+        type: File
   config: 
     receivers:
-      # For Kubernetes metrics
       kubeletstats:
         collection_interval: 20s
         auth_type: "serviceAccount"
         endpoint: "${K8S_NODE_NAME}:10250"
         tls:
-          insecure: true
+          ca_file: "/etc/otel/certs/kubelet-ca.crt"
       
       # For application metrics (Prometheus format)
       prometheus:
