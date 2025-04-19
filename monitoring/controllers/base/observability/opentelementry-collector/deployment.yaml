@@ -31,14 +31,21 @@ spec:
                   action: keep
                   regex: true
       
-      # For logs
-      filelog:
-        include: [ /var/log/pods/*/*.log ]
-        start_at: end
-        include_file_path: true
-        operators:
-          - type: json_parser
-            
+      # For local logs
+      # filelog:
+      #   include: [ /var/log/pods/*/*.log ]
+      #   start_at: end
+      #   include_file_path: true
+      #   operators:
+      #     - type: json_parser
+      
+      # for k8s logs
+      k8slog:
+        discovery:
+          mode: daemonset-stdout
+          filter:
+            namespaces:
+              - observability
       # For traces
       otlp:
         protocols:
