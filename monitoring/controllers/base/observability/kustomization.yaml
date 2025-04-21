@@ -12,3 +12,4 @@ resources:
   - mimir/
   - tempo/
   - opentelementry-collector/
+  - promtail/

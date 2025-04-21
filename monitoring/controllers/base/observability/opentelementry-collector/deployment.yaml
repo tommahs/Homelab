@@ -13,6 +13,7 @@ spec:
         fieldPath: spec.nodeName
   config: 
     receivers:
+      # for getting stats from kubelet service
       kubeletstats:
         collection_interval: 20s
         auth_type: "serviceAccount"
@@ -40,7 +41,7 @@ spec:
       #     - type: json_parser
       
       # for k8s logs
-      k8slog:
+      loki:
         discovery:
           mode: daemonset-stdout
           filter:
