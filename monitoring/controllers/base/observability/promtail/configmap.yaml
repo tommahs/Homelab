@@ -19,16 +19,39 @@ data:
       - url: http://loki-distributor.observability.svc.cluster.local:3100/loki/api/v1/push
 
     scrape_configs:
-      - job_name: kubernetes-pods
+      - job_name: kubernetes-pods-name
+        pipeline_stages:
+          - docker: {}
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
           - source_labels: [__meta_kubernetes_namespace]
-            target_label: namespace
-          - source_labels: [__meta_kubernetes_pod_container_name]
-            target_label: container
+            regex: your-target-namespace
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_label_name]
+            target_label: job
           - source_labels: [__meta_kubernetes_namespace]
             target_label: namespace
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: pod
-
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: node
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace]
+            regex: your-target-namespace
+            action: keep
+        static_configs:
+          - targets:
+              - localhost
+    # Config to handle containerd log paths
+      - job_name: system
+        static_configs:
+          - targets:
+              - localhost
+            labels:
+              job: varlogs
+              __path__: /var/log/pods/*/*/*.log

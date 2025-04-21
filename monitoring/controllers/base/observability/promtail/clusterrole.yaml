@@ -4,5 +4,5 @@ metadata:
   name: promtail
 rules:
   - apiGroups: [""]
-    resources: ["pods", "namespaces"]
+    resources: ["pods", "pods/logs", " "namespaces"]
     verbs: ["get", "list", "watch"]
