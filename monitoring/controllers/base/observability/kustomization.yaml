@@ -11,5 +11,5 @@ resources:
   - loki/
   - mimir/
   - tempo/
-  - opentelementry-collector/
+  - opentelemetry-collector/
   - promtail/

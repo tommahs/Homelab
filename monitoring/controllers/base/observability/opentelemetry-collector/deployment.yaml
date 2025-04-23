@@ -36,14 +36,6 @@ spec:
               static_configs:
                 - targets: ['objectstore.tommahs.nl']
       
-      # For local logs
-      filelog:
-        include: [ /var/log/pods/*/*.log ]
-        start_at: end
-        include_file_path: true
-        operators:
-          - type: json_parser
-      
       # For traces
       otlp:
         protocols:
