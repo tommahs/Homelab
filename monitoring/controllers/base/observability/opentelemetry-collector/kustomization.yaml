@@ -5,9 +5,6 @@ kind: Kustomization
 namespace: observability
 
 resources:
-  - namespace.yaml
-  - common/
-  - grafana/
-  - loki/
-  - mimir/
-  - tempo/
+  - clusterrole.yaml
+  - clusterrolebinding.yaml
+  - deployment.yaml

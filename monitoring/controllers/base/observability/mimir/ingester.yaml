@@ -55,6 +55,8 @@ spec:
         volumeMounts:
           - name: merged-config
             mountPath: /etc/mimir
+          - name: mimir-wal
+            mountPath: /tmp/mimir/wal  # Optional: WAL data can use emptyDir or a small local disk
       volumes:
         - name: mimir-config
           configMap:
@@ -67,6 +69,8 @@ spec:
             secretName: mimir-secret
         - name: merged-config
           emptyDir: {}
+        - name: mimir-wal
+          emptyDir: {}  # Optional: Use emptyDir for WAL if you don't need persistent storage for it
 ---
 apiVersion: v1
 kind: Service

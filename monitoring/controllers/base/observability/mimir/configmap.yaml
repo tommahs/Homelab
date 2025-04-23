@@ -37,13 +37,11 @@ data:
 
     distributor:
       ring:
-        instance_addr: 127.0.0.1
         kvstore:
           store: memberlist
 
     ingester:
       ring:
-        instance_addr: 127.0.0.1
         kvstore:
           store: memberlist
         replication_factor: 3
@@ -78,10 +76,11 @@ data:
       frontend_address: ""
 
     query_scheduler:
+      service_discovery_mode: dns
       max_outstanding_requests_per_tenant: 100
       ring:
         kvstore:
-          store: memberlist
-            
+          store: memberlist   
+ 
     limits:
       max_query_parallelism: 16

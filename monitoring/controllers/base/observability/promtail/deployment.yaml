@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  namespace: observability
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  template:
+    metadata:
+      labels:
+        app: promtail
+    spec:
+      serviceAccountName: promtail
+      containers:
+        - name: promtail
+          image: grafana/promtail:3.4.3
+          args:
+            - "-config.file=/etc/promtail/promtail.yaml"
+            - "-config.expand-env=true"
+          ports:
+            - name: http-metrics
+              containerPort: 9080
+          volumeMounts:
+            - name: config
+              mountPath: /etc/promtail
+            - name: positions
+              mountPath: /tmp
+            - name: varlog
+              mountPath: /var/log
+            - name: dockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: containerdlogs
+              mountPath: /var/log/pods
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: promtail-config
+        - name: positions
+          emptyDir: {}
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: dockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: containerdlogs
+          hostPath:
+            path: /var/log/pods

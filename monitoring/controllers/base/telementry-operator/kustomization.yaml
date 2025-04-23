@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: opentelemetry-operator-system
+
+resources:
+- clusterrole.yaml
+- clusterrolebinding.yaml
+- crds/
+- deployment.yaml
+- issuer.yaml
+- namespace.yaml
+- role.yaml
+- rolebinding.yaml
+- serviceaccount.yaml
+- service.yaml
+- validatingwebhookconfiguration.yaml
+- mutatingwebhookconfiguration.yaml
+- selfsigned-certificate.yaml
