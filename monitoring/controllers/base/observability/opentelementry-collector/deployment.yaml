@@ -31,22 +31,19 @@ spec:
                 - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
                   action: keep
                   regex: true
+            - job_name: 'ceph'
+              scrape_interval: 15s
+              static_configs:
+                - targets: ['objectstore.tommahs.nl']
       
       # For local logs
-      # filelog:
-      #   include: [ /var/log/pods/*/*.log ]
-      #   start_at: end
-      #   include_file_path: true
-      #   operators:
-      #     - type: json_parser
+      filelog:
+        include: [ /var/log/pods/*/*.log ]
+        start_at: end
+        include_file_path: true
+        operators:
+          - type: json_parser
       
-      # for k8s logs
-      loki:
-        discovery:
-          mode: daemonset-stdout
-          filter:
-            namespaces:
-              - observability
       # For traces
       otlp:
         protocols:
@@ -84,7 +81,7 @@ spec:
         endpoint: "http://loki-gateway.observability.svc.cluster.local:3100/otlp/v1/logs"
       # For traces to Tempo
       otlp:
-        endpoint: tempo-distributor.observability.svc.cluster.local:4317
+        endpoint: "http://tempo-distributor.observability.svc.cluster.local:4317"
         tls:
           insecure: true
 
