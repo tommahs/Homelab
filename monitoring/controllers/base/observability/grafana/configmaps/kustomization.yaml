@@ -25,3 +25,6 @@ configMapGenerator:
 - name: grafana-dashboards-07-cross-cutting
   files:
     - dashboards/07-cross-cutting/node-exporter.json
+
+generatorOptions:
+  disableNameSuffixHash: true
