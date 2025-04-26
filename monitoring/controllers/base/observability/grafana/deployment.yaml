@@ -12,10 +12,10 @@ spec:
     metadata:
       labels:
         app: grafana
-    annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "3000"
-      prometheus.io/path: "/metrics"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: grafana
