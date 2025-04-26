@@ -5,7 +5,7 @@ metadata:
   name: otel-collector-role-binding
 subjects:
 - kind: ServiceAccount
-  name: otel-collector-collector  # This should match your service account name
+  name: otel-collector
   namespace: observability
 roleRef:
   kind: ClusterRole
@@ -22,5 +22,5 @@ roleRef:
   name: otel-collector-kubelet-stats
 subjects:
 - kind: ServiceAccount
-  name: otel-collector-collector
+  name: otel-collector
   namespace: observability
