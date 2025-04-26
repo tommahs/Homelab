@@ -31,7 +31,7 @@ spec:
           mountPath: /etc/grafana/provisioning/datasources
         - name: grafana-dashboard-provider
           mountPath: /etc/grafana/provisioning/dashboards
-        - name: grafana-dashboards
+        - name: grafana-dashboards-storage
           mountPath: /var/lib/grafana/dashboards
         env:
         - name: GF_SECURITY_ADMIN_USER
@@ -86,8 +86,7 @@ spec:
             secretKeyRef:
               name: lgtm-s3-secret
               key: S3_PATH_STYLE
-        - name: grafana-dashboards-storage
-          mountPath: /var/lib/grafana/dashboards
+
       volumes:
         - name: grafana-dashboards-storage
           persistentVolumeClaim:
