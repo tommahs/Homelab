@@ -4,14 +4,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - configmap-datasources.yaml
   - configmap.yaml
-  - dashboard-provider.yaml
+  - grafana-dashboard-provider.yaml
+  - grafana-datasources-provider.yaml
 
 configMapGenerator:
 - name: grafana-dashboard-provider
   files:
-    - dashboard-provider.yaml=dashboard-provider.yaml
+    - dashboard-provider.yaml=dashboards.yaml
 - name: grafana-dashboards-01-physical
 - name: grafana-dashboards-02-virtualization
 - name: grafana-dashboards-03-storage
