@@ -86,7 +86,12 @@ spec:
             secretKeyRef:
               name: lgtm-s3-secret
               key: S3_PATH_STYLE
+        - name: grafana-dashboards-storage
+          mountPath: /var/lib/grafana/dashboards
       volumes:
+        - name: grafana-dashboards-storage
+          persistentVolumeClaim:
+            claimName: grafana-dashboards-pvc
         - name: grafana-config
           configMap:
             name: grafana-config
@@ -96,9 +101,6 @@ spec:
         - name: grafana-dashboard-provider
           configMap:
             name: grafana-dashboard-provider
-        - name: grafana-dashboards
-          configMap:
-            name: grafana-dashboards
         # secret
         - name: lgtm-s3-secrets
           secret:
