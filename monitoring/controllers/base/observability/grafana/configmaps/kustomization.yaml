@@ -11,7 +11,7 @@ resources:
 configMapGenerator:
 - name: grafana-dashboard-provider
   files:
-    - dashboard-provider.yaml=dashboards.yaml
+    - dashboard-provider.yaml=grafana-dashboard-provider.yaml
 - name: grafana-dashboards-01-physical
 - name: grafana-dashboards-02-virtualization
 - name: grafana-dashboards-03-storage
