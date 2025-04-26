@@ -11,7 +11,7 @@ resources:
   - pvc.yaml
   - pv.yaml
   - certificate.yaml
-  - configmap/
+  - configmaps/
 
 replacements:
 - source:
