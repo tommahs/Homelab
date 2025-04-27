@@ -5,58 +5,11 @@ metadata:
   name: grafana-dashboard-provider
 data:
   dashboards.yaml: |
+    apiVersion: 1
     providers:
-    - name: '01-physical'
-      orgId: 1
-      folder: 'L1-Physical'
+    - name: 'Homelab'
       type: file
-      disableDeletion: false
       updateIntervalSeconds: 30
-      allowUiUpdates: false
+      foldersFromFilesStructure: true
       options:
-        path: /var/lib/grafana/dashboards/01-physical
-    - name: '02-virtualization/'
-      orgId: 1
-      folder: 'L2-Virtualization'
-      type: file
-      disableDeletion: false
-      updateIntervalSeconds: 30
-      allowUiUpdates: false
-      options:
-        path: /var/lib/grafana/dashboards/02-virtualization
-    - name: '03-storage'
-      orgId: 1
-      folder: 'L3-Storage'
-      type: file
-      disableDeletion: false
-      updateIntervalSeconds: 30
-      allowUiUpdates: false
-      options:
-        path: /var/lib/grafana/dashboards/03-storage
-    - name: '04-kubernetes-infra'
-      orgId: 1
-      folder: 'L4-Kubernetes Infrastructure'
-      type: file
-      disableDeletion: false
-      updateIntervalSeconds: 30
-      allowUiUpdates: false
-      options:
-        path: /var/lib/grafana/dashboards/04-kubernetes-infra
-    - name: '05-kubernetes-services'
-      orgId: 1
-      folder: 'L5-Kubernetes Services'
-      type: file
-      disableDeletion: false
-      updateIntervalSeconds: 30
-      allowUiUpdates: false
-      options:
-        path: /var/lib/grafana/dashboards/05-kubernetes-services
-    - name: '06-applications'
-      orgId: 1
-      folder: 'L6-Applications'
-      type: file
-      disableDeletion: false
-      updateIntervalSeconds: 30
-      allowUiUpdates: false
-      options:
-        path: /var/lib/grafana/dashboards/06-applications
+        path: /var/lib/grafana/dashboards
