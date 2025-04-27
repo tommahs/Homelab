@@ -6,3 +6,4 @@ kind: Kustomization
 resources:
   - configmap.yaml
   - grafana-datasources-provider.yaml
+  - grafana-dashboard-provider.yaml

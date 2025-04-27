@@ -1,3 +1,4 @@
+---
 # dashboard-provider.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -5,11 +6,15 @@ metadata:
   name: grafana-dashboard-provider
 data:
   dashboards.yaml: |
-    - name: Homelab
+    apiVersion: 1
+    providers:
+    - name: 'Dashboards'
+      orgId: 1
+      folder: ''
       type: file
       disableDeletion: false
-      editable: true
-      updateIntervalSeconds: 30
+      updateIntervalSeconds: 10
+      allowUiUpdates: true
       options:
         path: /var/lib/grafana/dashboards
         foldersFromFilesStructure: true
