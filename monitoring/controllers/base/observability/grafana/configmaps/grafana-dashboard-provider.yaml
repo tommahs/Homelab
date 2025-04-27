@@ -7,9 +7,9 @@ data:
   dashboards.yaml: |
     apiVersion: 1
     providers:
-    - name: 'Homelab'
+    - name: Homelab
       type: file
       updateIntervalSeconds: 30
-      foldersFromFilesStructure: true
       options:
         path: /var/lib/grafana/dashboards
+        foldersFromFilesStructure: true
