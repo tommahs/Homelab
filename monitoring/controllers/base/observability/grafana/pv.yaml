@@ -13,7 +13,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: grafana-dashboards
   nfs:
-    path: /data/nfs/grafanalabs/grafana/
+    path: /data/nfs/grafanalabs/dashboards/
     server: 192.168.122.1
   mountOptions:
     - hard
