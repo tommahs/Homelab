@@ -7,12 +7,11 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - configmap.yaml
-  - configmap-datasources.yaml
   - secret.yaml
   - pvc.yaml
   - pv.yaml
   - certificate.yaml
+  - configmaps/
 
 replacements:
 - source:
@@ -33,3 +32,4 @@ replacements:
       name: grafana-tls
     fieldPaths:
     - spec.dnsNames.0
+

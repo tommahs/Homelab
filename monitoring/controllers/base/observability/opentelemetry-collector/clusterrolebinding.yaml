@@ -5,9 +5,22 @@ metadata:
   name: otel-collector-role-binding
 subjects:
 - kind: ServiceAccount
-  name: otel-collector-collector  # This should match your service account name
+  name: otel-collector
   namespace: observability
 roleRef:
   kind: ClusterRole
   name: otel-collector-role
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector-kubelet-stats
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-collector-kubelet-stats
+subjects:
+- kind: ServiceAccount
+  name: otel-collector
+  namespace: observability

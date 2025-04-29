@@ -39,25 +39,25 @@ data:
     plugins = /var/lib/grafana/plugins
     provisioning = /etc/grafana/provisioning
     
-  datasources.yaml: |
-    apiVersion: 1
-    datasources:
-    - name: Prometheus
-      type: prometheus
-      url: http://prometheus-server:9090
-      access: proxy
-      isDefault: true
+  # datasources.yaml: |
+  #   apiVersion: 1
+  #   datasources:
+  #   - name: Prometheus
+  #     type: prometheus
+  #     url: http://prometheus-server:9090
+  #     access: proxy
+  #     isDefault: true
       
-  dashboard-provider.yaml: |
-    apiVersion: 1
-    providers:
-    - name: 'default'
-      orgId: 1
-      folder: ''
-      type: file
-      disableDeletion: false
-      updateIntervalSeconds: 10
-      allowUiUpdates: true
-      options:
-        path: /var/lib/grafana/dashboards/default
-        foldersFromFilesStructure: true
+  # dashboard-provider.yaml: |
+  #   apiVersion: 1
+  #   providers:
+  #   - name: 'default'
+  #     orgId: 1
+  #     folder: ''
+  #     type: file
+  #     disableDeletion: false
+  #     updateIntervalSeconds: 10
+  #     allowUiUpdates: true
+  #     options:
+  #       path: /var/lib/grafana/dashboards/default
+  #       foldersFromFilesStructure: true

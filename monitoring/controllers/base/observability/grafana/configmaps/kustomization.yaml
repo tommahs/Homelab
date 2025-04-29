@@ -1,0 +1,9 @@
+---
+# grafana/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+  - grafana-datasources-provider.yaml
+  - grafana-dashboard-provider.yaml

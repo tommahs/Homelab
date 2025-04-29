@@ -1,9 +1,9 @@
-# grafana/configmap-datasources.yaml
+# grafana/grafana-configmap-datasources.yaml
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-datasources
+  name: grafana-datasources-provider
 data:
   datasources.yaml: |
     apiVersion: 1
