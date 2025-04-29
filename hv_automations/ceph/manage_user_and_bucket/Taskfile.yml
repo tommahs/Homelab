@@ -1,0 +1,227 @@
+---
+# Taskfile for Ceph RGW setup with cleanup and teardown tasks. 
+# Used to create a user and bucket, set quotas, and test S3 compatibility.
+# Must be run on one of the masters with access to cephadm and radosgw-admin.
+# Author: Tom van Hamersveld
+# Last revision: 2025-04-23
+
+version: '3'
+
+vars:
+  CEPH_CMD: cephadm shell --
+  RGW_CMD: "{{.CEPH_CMD}} radosgw-admin"
+
+tasks:
+  example-setup:
+    desc: "Example: go-task setup HOST=objectstore.example.com PORT=443 USER=example BUCKET=example-bucket USER_QUOTA=50G BUCKET_QUOTA=25G"
+    cmds:
+      - |
+        echo "Example: go-task setup HOST=objectstore.example.com PORT=443 USER=example BUCKET=example-bucket USER_QUOTA=50G BUCKET_QUOTA=25G"
+  
+  example-teardown:
+    desc: "Example: go-task teardown HOST=objectstore.example.com PORT=443 USER=example BUCKET=example-bucket USER_QUOTA=50G BUCKET_QUOTA=25G"
+    cmds:
+      - |
+        echo "Example: go-task teardown HOST=objectstore.example.com PORT=443 USER=example BUCKET=example-bucket USER_QUOTA=50G BUCKET_QUOTA=25G"
+
+  get-user-keys:
+    desc: "Fetch access and secret keys for the specified user"
+    vars:
+      USER_KEYS_FILE: /tmp/{{.USER}}-keys.txt
+    cmds:
+      - |
+        echo "Fetching keys for user {{.USER}}..."
+        export ACCESS_KEY=$({{.RGW_CMD}} user info --uid='{{.USER}}' | jq -r '.keys[0].access_key')
+        export SECRET_KEY=$({{.RGW_CMD}} user info --uid='{{.USER}}' | jq -r '.keys[0].secret_key')
+        if [[ -z "$ACCESS_KEY" || -z "$SECRET_KEY" ]]; then
+          echo "Error: Keys not found for user '{{.USER}}'."
+          exit 1
+        fi
+        echo "Access Key: $ACCESS_KEY"
+        echo "Secret Key: $SECRET_KEY"
+        echo "Saving keys to {{.USER}}-keys.txt..."
+        echo "Access Key: $ACCESS_KEY" > {{.USER_KEYS_FILE}}
+        echo "Secret Key: $SECRET_KEY" >> {{.USER_KEYS_FILE}}
+      - echo "✅ Keys for user '{{.USER}}' saved to '{{.USER_KEYS_FILE}}'."
+
+  get-all-buckets:
+    desc: "List all buckets"
+    cmds:
+      - "{{.RGW_CMD}} bucket list --uid='{{.USER}}'"
+
+  setup-ceph-user:
+    desc: "Create a Ceph user for the application"
+    cmds:
+      - "{{.RGW_CMD}} user create --uid='{{.USER}}' --display-name='{{.USER}} User'"
+      - echo "✅ Created Ceph user for user '{{.USER}}'"
+
+  create-secure-user-policy:
+    desc: "Set a secure, minimal-access policy for a user"
+    vars:
+      POLICY_FILE: /tmp/{{.USER}}-policy.json
+    cmds:
+      - |
+        echo "Generating policy for user {{.USER}} and bucket {{.BUCKET}}..."
+        cat > {{.POLICY_FILE}} <<EOF
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketLocation"
+              ],
+              "Resource": "arn:aws:s3:::{{.BUCKET}}"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+              ],
+              "Resource": "arn:aws:s3:::{{.BUCKET}}/*"
+            }
+          ]
+        }
+        EOF
+      - echo "✅ Secure policy written for user '{{.USER}}'."
+
+  setup-s3cmd-minimal:
+    desc: "Configure s3cmd"
+    vars:
+      USER_S3CFG_FILE: /tmp/{{.USER}}-s3cfg
+    cmds:
+      - |
+        echo "Fetching keys for user {{.USER}}..."
+        export ACCESS_KEY=$({{.RGW_CMD}} user info --uid='{{.USER}}' | jq -r '.keys[0].access_key')
+        export SECRET_KEY=$({{.RGW_CMD}} user info --uid='{{.USER}}' | jq -r '.keys[0].secret_key')
+        if [[ -z "$ACCESS_KEY" || -z "$SECRET_KEY" ]]; then
+          echo "Error: Keys not found for user '{{.USER}}'."
+          exit 1
+        fi
+        echo "Access Key: $ACCESS_KEY"
+        echo "Secret Key: $SECRET_KEY"
+        echo "Saving keys to {{.USER}}-keys.txt..."
+        cat > /tmp/{{.USER}}-s3cfg.txt <<EOF
+        [default]
+        access_key = $ACCESS_KEY
+        secret_key = $SECRET_KEY
+        host_base = {{.HOST}}:{{.PORT}}
+        host_bucket = {{.HOST}}:{{.PORT}}
+        use_https = False
+        check_ssl_certificate = False
+        EOF
+      - echo "✅ Keys for user '{{.USER}}' saved to '{{.USER_S3CFG_FILE}}'."
+      - mv /tmp/{{.USER}}-s3cfg.txt ~/.s3cfg
+
+  create-bucket:
+    desc: "Create an RGW bucket through the user"
+    cmds:
+      - s3cmd mb s3://{{.BUCKET}}
+      - "{{.RGW_CMD}} bucket stats --bucket='{{.BUCKET}}'"
+
+  set-bucket-policy:
+    desc: "Set bucket policy for user access"
+    vars:
+      POLICY_FILE: /tmp/{{.USER}}-policy.json
+    cmds:
+      - s3cmd setpolicy /tmp/{{.USER}}-policy.json s3://{{.BUCKET}}/
+
+  configure-quota:
+    desc: "Configure quota for user and bucket"
+    cmds:
+      - "{{.RGW_CMD}} quota set --uid='{{.USER}}' --quota-scope=user --max-size='{{.USER_QUOTA}}'"
+      - "{{.RGW_CMD}} quota enable --uid='{{.USER}}' --quota-scope=user"
+      - "{{.RGW_CMD}} quota set --bucket='{{.BUCKET}}' --quota-scope=bucket --max-size='{{.BUCKET_QUOTA}}'"
+      - "{{.RGW_CMD}} quota enable --quota-scope=bucket --uid='{{.USER}}'"
+      - "{{.CEPH_CMD}} ceph config set client.rgw rgw_enable_quota_threads true"
+
+  verify-quota:
+    desc: "Verify quotas for user and bucket"
+    cmds:
+      - "{{.RGW_CMD}} user info --uid='{{.USER}}' | jq '.quotas'"
+      - "{{.RGW_CMD}} bucket stats --bucket='{{.BUCKET}}' | jq '.bucket_quota'"
+
+  test-s3:
+    desc: "Test S3 compatibility with s3cmd"
+    cmds:
+      - s3cmd ls
+      - echo "Hello, Ceph!" > /tmp/testfile.txt
+      - s3cmd put /tmp/testfile.txt s3://{{.BUCKET}}/
+      - s3cmd ls s3://{{.BUCKET}}/
+
+  cleanup-s3cmd:
+    desc: "Remove s3cmd config"
+    cmds:
+      - echo "Cleaning up local s3cmd config..."
+      - rm -f ~/.s3cfg
+  
+  cleanup-bucket:
+    desc: "Remove RGW bucket through s3cmd"
+    cmds:
+      - echo "Deleting all objects in bucket {{.BUCKET}}..."
+      - s3cmd del --recursive --force s3://{{.BUCKET}}/
+      - echo "Removing bucket {{.BUCKET}}..."
+      - s3cmd rb s3://{{.BUCKET}}
+
+  cleanup-secure-user-policy:
+    desc: "Remove secure user policy"
+    cmds:
+      - echo "Removing secure user policy..."
+      - rm -f /tmp/{{.USER}}-policy.json
+
+  cleanup-ceph-user:
+    desc: "Remove Ceph user"
+    cmds:
+      - echo "Removing Ceph user '{{.USER}}'..."
+      - "{{.RGW_CMD}} user rm --uid='{{.USER}}'"
+
+  cleanup-testfile:
+    desc: "Remove testfile"
+    cmds:
+      - echo "Removing testfile..."
+      - rm -f /tmp/testfile.txt
+
+  remove-testfile-from-bucket:
+    desc: "Remove testfile from bucket"
+    cmds:
+      - echo "Removing testfile from bucket..."
+      - s3cmd del s3://{{.BUCKET}}/testfile.txt 
+
+  teardown:
+    desc: "Teardown Ceph RGW setup (DESTRUCTIVE)"
+    cmds:
+      - task: cleanup-testfile
+      - task: cleanup-bucket
+      - task: cleanup-ceph-user
+      - task: cleanup-secure-user-policy
+      - task: cleanup-s3cmd
+
+  setup:
+    desc: "Complete setup process"
+    cmds:
+      - task: setup-ceph-user
+      - task: create-secure-user-policy
+      - task: setup-s3cmd-minimal
+      - task: create-bucket
+      - task: set-bucket-policy
+      - task: configure-quota
+      - task: verify-quota
+      - task: test-s3
+      - task: cleanup-testfile
+      - task: remove-testfile-from-bucket
+
+  setup-extra-bucket:
+    desc: "Add extra bucket for existing user"
+    cmds:
+      - task: create-secure-user-policy
+      - task: setup-s3cmd-minimal
+      - task: create-bucket
+      - task: set-bucket-policy
+      - task: configure-quota
+      - task: verify-quota
+      - task: test-s3
+      - task: cleanup-testfile
+      - task: remove-testfile-from-bucket
