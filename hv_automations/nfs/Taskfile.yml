@@ -1,0 +1,57 @@
+---
+# This task file takes care of adding a share, updating user/group permissions, setting the etc/exports file and restarting the nfs server
+# Required variables:
+# - NFS_PATH
+# - NFS_USER
+# - NFS_GROUP
+# - SHARE
+# Usage: go-task add_new_share_to_filesystem NFS_PATH=/data/nfs NFS_USER=nobody NFS_GROUP=nobody SHARE=example/example
+# go-task setup NFS_PATH=/data/nfs NFS_USER=nobody NFS_GROUP=nobody SHARE=grafanalabs/dashboards
+version: 3
+vars:
+  NFS_OPTIONS: " *(rw,sync,no_subtree_check)"
+
+tasks:
+  help:
+    desc: "Display help for all tasks"
+    cmds:
+      - echo "Available tasks:"
+      - echo "1. add_new_share_to_filesystem - Add a new NFS share to filesystem"
+      - echo "2. update_permissions - Update the user/group for the share"
+      - echo "3. add_share_to_etc_exports - Adding the share to /etc/exports"
+      - echo "4. exporting_share - Exporting the share"
+      - echo "5. restart_nfs_server - Restarting the NFS server"
+
+  add_new_share_to_filesystem:
+    desc: "Add a new NFS share to filesystem"
+    cmds:
+    - sudo mkdir -p {{.NFS_PATH}}/{{.SHARE}}
+  
+  update_permissions:
+    desc: "Update the user/group for the share..."
+    cmds:
+    - sudo chown {{.NFS_USER}}:{{.NFS_GROUP}} {{.NFS_PATH}}/{{.SHARE}}
+
+  add_share_to_etc_exports:
+    desc: "Adding the share to /etc/exports"
+    cmds:
+      - echo "{{.NFS_PATH}}/{{.SHARE}} {{.NFS_NETWORK}}{{.NFS_OPTIONS}}" | sudo tee -a /etc/exports
+  
+  exporting_share:
+    desc: "Exporting the share"
+    cmds:
+      - sudo exportfs -a
+
+  restart_nfs_server:
+    desc: "Restarting the nfs server"
+    cmds:
+      - sudo systemctl restart nfs
+
+  setup:
+    desc: "Setup nfs share on server"
+    cmds:
+      - task: add_new_share_to_filesystem
+      - task: update_permissions
+      - task: add_share_to_etc_exports
+      - task: exporting_share
+      - task: restart_nfs_server

@@ -1,5 +1,5 @@
 ---
-# 08-secret-rotation-job.yaml
+# 10-mariadb-cronjob-backup.yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:

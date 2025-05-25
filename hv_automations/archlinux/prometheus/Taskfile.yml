@@ -1,0 +1,60 @@
+---
+# This task file needs to connect over the net, update the system and install node exporter
+
+version: 3
+
+tasks:
+  update-system:
+    desc: "Update the archlinux system"
+    cmds:
+      - echo "Updating the system..."
+      - sudo pacman -Syy --noconfirm
+
+  install-node-exporters:
+    desc: "Install node exporter"
+    cmds:
+      - echo "Installing node exporter..."
+      - sudo pacman -S --noconfirm prometheus-node-exporter
+
+  start-node-exporters:
+    desc: "Start node exporter"
+    cmds:
+      - echo "Starting node exporter..."
+      - sudo systemctl start prometheus-node-exporter
+
+  stop-node-exporters:
+    desc: "Stop node exporter"
+    cmds:
+      - echo "Stopping node exporter..."
+      - sudo systemctl stop prometheus-node-exporter
+
+  restart-node-exporters:
+    desc: "Restart node exporter"
+    cmds:
+      - echo "Restarting node exporter..."
+      - sudo systemctl restart prometheus-node-exporter
+
+  status-node-exporters:
+    desc: "Check status of node exporter"
+    cmds:
+      - echo "Checking status of node exporter..."
+      - sudo systemctl status prometheus-node-exporter
+
+  enable-node-exporters:
+    desc: "Enable node exporter"
+    cmds:
+      - echo "Enabling and start node exporter..."
+      - sudo systemctl enable --now prometheus-node-exporter
+
+  disable-node-exporters:
+    desc: "Disable node exporter"
+    cmds:
+      - echo "Disabling node exporter..."
+      - sudo systemctl disable --now prometheus-node-exporter
+
+  setup:
+    desc: "Setup prometheus node exporter"
+    cmds:
+      - task: update-system
+      - task: install-node-exporters
+      - task: enable-node-exporters
