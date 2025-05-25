@@ -91,7 +91,7 @@ spec:
         passthrough: false
         filter:
           # only retrieve pods running on the same node as the collector
-          node_from_env_var: ${env:K8S_NODE_NAME}
+          node_from_env_var: K8S_NODE_NAME
         extract:
           # The attributes provided in 'metadata' will be added to associated resources
           metadata:
