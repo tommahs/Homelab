@@ -84,3 +84,4 @@ data:
  
     limits:
       max_query_parallelism: 16
+      compactor_blocks_retention_period: 15d
