@@ -1,0 +1,110 @@
+---
+# This file is located at: opentelemetry-collector/node/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector-node
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector-node
+  template:
+    metadata:
+      labels:
+        app: otel-collector-node
+    spec:
+      volumes:
+        - name: otel-collector-config-node-vol
+          configMap:
+            name: otel-collector-config-node-template
+            defaultMode: 0444  # Read-only
+        - name: targets-secret
+          secret:
+            secretName: node-scrape-targets
+        - name: generated-config
+          emptyDir: {}
+      initContainers:
+      - name: generate-config
+        image: alpine:3.21  # Use Alpine, which includes envsubst
+        imagePullPolicy: IfNotPresent
+        command:
+          - /bin/sh
+          - -c
+          - |
+            apk add --no-cache jq
+            jq -r '.[]' targets.json | sed 's/^/              - "/;s/$/"/' > /tmp/targets.yaml
+            awk 'FNR==NR { targets[NR] = $$0; next }
+            /__TARGETS__/ {
+              for (i = 1; i <= length(targets); i++) print targets[i]
+              next
+            }
+            { print }' /tmp/targets.yaml config.yaml.template  > config.yaml
+
+        volumeMounts:
+          - name: otel-collector-config-node-vol
+            mountPath: /config-template
+          - name: targets-secret
+            mountPath: /secrets
+          - name: generated-config
+            mountPath: /generated
+
+      containers:
+        - name: otel-collector-node
+          imagePullPolicy: IfNotPresent
+          image: otel/opentelemetry-collector-contrib:0.93.0
+          args:
+            - "--config=/etc/otel-collector-config/config.yaml"
+          ports:
+            - containerPort: 13133
+              name: health
+          volumeMounts:
+            - name: generated-config
+              mountPath: /etc/otel-collector-config
+              readOnly: true
+          resources:
+            limits:
+              cpu: 200m
+              memory: 384Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+          env:
+          - name: GOMEMLIMIT
+            value: "300MiB"
+          - name: NODE_METRICS_TARGET
+            valueFrom:
+              secretKeyRef:
+                name: node-scrape-targets
+                key: targets.json
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+              - ALL
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      restartPolicy: Always
