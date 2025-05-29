@@ -1,9 +1,0 @@
----
-# This file is located at: opentelemetry-collector/ceph/deployment.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-- secret.yaml
-- configmap.yaml
-- deployment.yaml
