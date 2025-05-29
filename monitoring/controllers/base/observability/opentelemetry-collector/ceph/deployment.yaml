@@ -54,7 +54,7 @@ spec:
         env:
         - name: GOMEMLIMIT
           value: "300MiB"  # Aligned with memory limit
-        - name: CEPH_METRICS_TARGET
+        - name: CEPH_METRICS_TARGETS
           valueFrom:
             secretKeyRef:
               name: ceph-targets-secret
