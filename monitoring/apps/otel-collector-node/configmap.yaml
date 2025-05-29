@@ -37,6 +37,7 @@ data:
       memory_limiter:
         limit_mib: 256
         spike_limit_mib: 64
+        check_interval: 1s
     exporters:
       otlp:
         endpoint: otel-gateway-collector:4317
