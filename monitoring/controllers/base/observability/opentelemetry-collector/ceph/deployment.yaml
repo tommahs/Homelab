@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector-ceph
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector-ceph
+  template:
+    metadata:
+      labels:
+        app: otel-collector-ceph
+    spec:
+      containers:
+      - name: otel-collector-ceph
+        imagePullPolicy: IfNotPresent
+        image: otel/opentelemetry-collector-contrib:0.93.0  # Latest stable
+        args:
+          - "--config=/etc/otel-collector-config/config.yaml"
+          - "--feature-gates=-component.UseLocalHostAsDefaultHost"  # Security improvement
+        ports:
+        - containerPort: 13133
+          name: health
+        volumeMounts:
+        - name: otel-collector-config-ceph-vol
+          mountPath: /etc/otel-collector-config
+          readOnly: true  # Security improvement
+        resources:
+          limits:
+            cpu: 200m      # Reduced - this is just scraping
+            memory: 384Mi  # Increased slightly for buffer
+          requests:
+            cpu: 100m      # Reduced requests
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 15  # Reduced startup time  
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 2
+        env:
+        - name: GOMEMLIMIT
+          value: "300MiB"  # Aligned with memory limit
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534  # nobody user
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: otel-collector-config-ceph-vol
+        configMap:
+          name: otel-collector-config-ceph
+          defaultMode: 0444  # Read-only
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      restartPolicy: Always
+

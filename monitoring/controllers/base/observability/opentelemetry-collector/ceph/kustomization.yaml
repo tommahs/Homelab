@@ -1,0 +1,22 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- secret.yaml
+- configmap.yaml
+- deployment.yaml
+
+replacements:
+- source:
+    kind: Secret
+    name: ceph-targets-secret
+    fieldPath: stringData.CEPH_TARGETS
+  targets:
+  - select:
+      kind: ConfigMap
+      name: otel-collector-config-ceph
+    fieldPaths:
+    - data.[config.yaml]
+    options:
+      delimiter: "CEPH_TARGETS_PLACEHOLDER"
