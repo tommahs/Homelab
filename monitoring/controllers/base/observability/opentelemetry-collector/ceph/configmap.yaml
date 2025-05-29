@@ -13,7 +13,8 @@ data:
           scrape_configs:
             - job_name: 'ceph-metrics'
               static_configs:
-                - targets: ${CEPH_METRICS_TARGETS}
+                - targets:
+                  - ${CEPH_METRICS_TARGET}
               scrape_interval: 15s  # Reduced from 30s
               scrape_timeout: 10s   # Added explicit timeout
               metrics_path: /metrics
@@ -23,7 +24,7 @@ data:
         timeout: 5s              # Reduced from 10s for lower latency
         send_batch_max_size: 512 # Reduced from 1024 to prevent large batches
         send_batch_size: 256     # Added to trigger batches earlier
-      
+
       resource:
         attributes:
           - key: cluster
@@ -32,11 +33,12 @@ data:
           - key: collector.name
             value: metrics-scraper
             action: upsert
-      
+
       # Memory limiter to prevent OOM
       memory_limiter:
         limit_mib: 256
         spike_limit_mib: 64
+        check_interval: 1s
 
     exporters:
       otlp:
@@ -59,5 +61,5 @@ data:
           receivers: [prometheus]
           processors: [memory_limiter, batch, resource]
           exporters: [otlp]
-      
+
       extensions: []  # No extensions needed

@@ -39,7 +39,7 @@ spec:
           httpGet:
             path: /
             port: 13133
-          initialDelaySeconds: 15  # Reduced startup time  
+          initialDelaySeconds: 15  # Reduced startup time
           periodSeconds: 30
           timeoutSeconds: 5
           failureThreshold: 3
@@ -54,11 +54,11 @@ spec:
         env:
         - name: GOMEMLIMIT
           value: "300MiB"  # Aligned with memory limit
-        - name: CEPH_METRICS_TARGETS
+        - name: CEPH_METRICS_TARGET
           valueFrom:
             secretKeyRef:
               name: ceph-targets-secret
-              key: CEPH_METRICS_TARGETS
+              key: CEPH_METRICS_TARGET
         securityContext:
           runAsNonRoot: true
           runAsUser: 65534  # nobody user
@@ -77,4 +77,3 @@ spec:
         runAsUser: 65534
         fsGroup: 65534
       restartPolicy: Always
-
