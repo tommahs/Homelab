@@ -21,7 +21,6 @@ spec:
         image: otel/opentelemetry-collector-contrib:0.93.0  # Latest stable
         args:
           - "--config=/etc/otel-collector-config/config.yaml"
-          - "--feature-gates=-component.UseLocalHostAsDefaultHost"  # Security improvement
         ports:
         - containerPort: 13133
           name: health
@@ -55,6 +54,11 @@ spec:
         env:
         - name: GOMEMLIMIT
           value: "300MiB"  # Aligned with memory limit
+        - name: CEPH_METRICS_TARGET
+          valueFrom:
+            secretKeyRef:
+              name: ceph-targets-secret
+              key: CEPH_METRICS_TARGETS
         securityContext:
           runAsNonRoot: true
           runAsUser: 65534  # nobody user
