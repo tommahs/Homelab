@@ -22,9 +22,6 @@ spec:
         image: otel/opentelemetry-collector-contrib:0.93.0  # Latest stable
         args:
           - "--config=/etc/otel-collector-config/config.yaml"
-        ports:
-        - containerPort: 13133
-          name: health
         volumeMounts:
         - name: otel-collector-config-ceph-vol
           mountPath: /etc/otel-collector-config
@@ -44,14 +41,6 @@ spec:
           periodSeconds: 30
           timeoutSeconds: 5
           failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 13133
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 3
-          failureThreshold: 2
         env:
         - name: GOMEMLIMIT
           value: "300MiB"  # Aligned with memory limit
