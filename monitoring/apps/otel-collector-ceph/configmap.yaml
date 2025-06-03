@@ -14,7 +14,7 @@ data:
             - job_name: 'ceph-metrics'
               static_configs:
                 - targets:
-                  - ${CEPH_METRICS_TARGET}
+                  - ${CEPH_METRICS_TARGET} # Accepts single IP
               scrape_interval: 15s  # Reduced from 30s
               scrape_timeout: 10s   # Added explicit timeout
               metrics_path: /metrics
