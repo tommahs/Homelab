@@ -22,6 +22,12 @@ replacements:
         options:
           delimiter: "`"
           index: 1
+
+  - source:
+      kind: Secret
+      name: alertmanager-secret
+      fieldPath: stringData.ALERTMANAGER_EXTERNAL_URL
+    targets:
       - select:
           kind: Deployment
           name: alertmanager
