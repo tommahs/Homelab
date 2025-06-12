@@ -13,3 +13,4 @@ resources:
   - tempo/
   - opentelemetry-collector/
   - promtail/
+  - alertmanager/
