@@ -3,13 +3,8 @@ resources:
   - service.yaml
   - configmap.yaml
   - ingressroute.yaml
-  - secret.yaml  # Add only if you generate it
-
-configMapGenerator:
-  - name: alertmanager-config
-    files:
-      - alertmanager.yaml=config/alertmanager.yaml
-
+  - secret.yaml
+  
 generatorOptions:
   disableNameSuffixHash: true
 replacements:
