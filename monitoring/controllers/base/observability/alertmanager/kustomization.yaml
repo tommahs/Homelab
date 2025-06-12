@@ -3,6 +3,7 @@ resources:
   - service.yaml
   - configmap.yaml
   - ingressroute.yaml
+  - ingress-middlewares.yaml
   - secret.yaml
 
 generatorOptions:
