@@ -1,0 +1,33 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - configmap.yaml
+  - ingressroute.yaml
+  - secret.yaml  # Add only if you generate it
+
+configMapGenerator:
+  - name: alertmanager-config
+    files:
+      - alertmanager.yaml=config/alertmanager.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+replacements:
+- source:
+    kind: Secret
+    name: alertmanager-secret
+    fieldPath: stringData.ALERTMANAGER_ENDPOINT
+  targets:
+  - select:
+      kind: IngressRoute
+      name: alertmanager
+    fieldPaths:
+    - spec.routes.0.match
+    options:
+      delimiter: "`"
+      index: 1
+  - select:
+      kind: Certificate
+      name: alertmanager-tls
+    fieldPaths:
+    - spec.dnsNames.0
