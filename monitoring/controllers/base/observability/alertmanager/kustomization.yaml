@@ -4,25 +4,29 @@ resources:
   - configmap.yaml
   - ingressroute.yaml
   - secret.yaml
-  
+
 generatorOptions:
   disableNameSuffixHash: true
+
 replacements:
-- source:
-    kind: Secret
-    name: alertmanager-secret
-    fieldPath: stringData.ALERTMANAGER_ENDPOINT
-  targets:
-  - select:
-      kind: IngressRoute
-      name: alertmanager
-    fieldPaths:
-    - spec.routes.0.match
-    options:
-      delimiter: "`"
-      index: 1
-  - select:
-      kind: Certificate
-      name: alertmanager-tls
-    fieldPaths:
-    - spec.dnsNames.0
+  - source:
+      kind: Secret
+      name: alertmanager-secret
+      fieldPath: stringData.ALERTMANAGER_ENDPOINT
+    targets:
+      - select:
+          kind: IngressRoute
+          name: alertmanager
+        fieldPaths:
+          - spec.routes.0.match
+        options:
+          delimiter: "`"
+          index: 1
+      - select:
+          kind: Deployment
+          name: alertmanager
+        fieldPaths:
+          - spec.template.spec.containers.0.args.2
+        options:
+          delimiter: "="
+          index: 1
