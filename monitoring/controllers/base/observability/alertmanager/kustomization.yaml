@@ -5,7 +5,7 @@ resources:
   - ingressroute.yaml
   - ingress-middlewares.yaml
   - secret.yaml
-
+  - certificate.yaml
 generatorOptions:
   disableNameSuffixHash: true
 
@@ -23,7 +23,11 @@ replacements:
         options:
           delimiter: "`"
           index: 1
-
+      - select:
+          kind: Certificate
+          name:  alertmanager-tls
+        fieldPaths:
+          - spec.dnsNames.0
   - source:
       kind: Secret
       name: alertmanager-secret
