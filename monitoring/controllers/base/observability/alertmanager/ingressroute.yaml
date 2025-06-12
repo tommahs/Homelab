@@ -6,13 +6,21 @@ metadata:
   namespace: observability
 spec:
   entryPoints:
+    - web
     - websecure
   routes:
-    - match: Host(`alertmanager.example.com`)
-      kind: Rule
+    - kind: Rule
+      match: Host(`alertmanager.example.com`)
+      priority: 10
+      middlewares:
+        - name: redirect-to-https
       services:
         - name: alertmanager
+          namespace: observability
+          passHostHeader: true
           port: 80
+          responseForwarding:
+            flushInterval: 1ms
   tls:
-    certResolver: letsencrypt
+    secretName: alertmanager-tls
 
