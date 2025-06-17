@@ -4,17 +4,18 @@ kind: Deployment
 metadata:
   name: mimir-alertmanager
   labels:
-    app: mimir-alertmanager
+    app: mimir
     component: alertmanager
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: mimir-alertmanager
+      app: mimir
+      component: alertmanager
   template:
     metadata:
       labels:
-        app: mimir-alertmanager
+        app: mimir
         component: alertmanager
     spec:
       serviceAccountName: mimir-alertmanager
@@ -42,7 +43,7 @@ spec:
           mountPath: /etc/mimir
       containers:
       - name: alertmanager
-        image: grafana/mimir:2.10.0
+        image: grafana/mimir:2.16.0
         imagePullPolicy: IfNotPresent
         args:
           - -target=alertmanager
@@ -135,7 +136,11 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - mimir-alertmanager
+                  - mimir
+                - key: component
+                  operator: In
+                  values:
+                  - alertmanager
               topologyKey: kubernetes.io/hostname
       terminationGracePeriodSeconds: 60
 
@@ -145,7 +150,8 @@ kind: Service
 metadata:
   name: mimir-alertmanager
   labels:
-    app: mimir-alertmanager
+    app: mimir
+    component: alertmanager
 spec:
   type: ClusterIP
   ports:
@@ -162,7 +168,9 @@ spec:
     targetPort: memberlist
     protocol: TCP
   selector:
-    app: mimir-alertmanager
+    app: mimir
+    component: alertmanager
+
 
 ---
 apiVersion: v1
@@ -170,7 +178,8 @@ kind: Service
 metadata:
   name: mimir-alertmanager-headless
   labels:
-    app: mimir-alertmanager
+    app: mimir
+    component: alertmanager
 spec:
   type: ClusterIP
   clusterIP: None
@@ -189,10 +198,14 @@ spec:
     targetPort: memberlist
     protocol: TCP
   selector:
-    app: mimir-alertmanager
+    app: mimir
+    component: alertmanager
 
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mimir-alertmanager
+  labels:
+    app: mimir
+    component: alertmanager

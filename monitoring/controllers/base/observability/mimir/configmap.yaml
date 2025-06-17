@@ -49,11 +49,25 @@ data:
 
     ruler:
       enable_api: true
-      alertmanager_url: http://alertmanager.observability.svc.cluster.local:9093
+      alertmanager_url: http://mimir-alertmanager:8080/alertmanager/
       ring:
         kvstore:
           store: memberlist
-      rule_path: /etc/mimir/rules
+      rule_path: /data/rules
+
+      # Rule evaluation configuration
+      evaluation_interval: 30s
+      poll_interval: 15s
+      
+
+      query_frontend:
+        # GRPC listen address of the query-frontend(s). (prefixed with dns:///)
+        # 
+        address: dns://mimir-query-frontend:9095
+
+      # Tenant configuration for rule evaluation
+      tenant_federation:
+        enabled: false
 
     server:
       http_listen_port: 8080
