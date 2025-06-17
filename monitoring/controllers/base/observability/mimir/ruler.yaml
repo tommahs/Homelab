@@ -75,6 +75,8 @@ spec:
   ports:
   - port: 8080
     name: http
+  - port: 9095
+    name: grpc
   selector:
     app: mimir
     component: ruler

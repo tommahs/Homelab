@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -48,15 +49,31 @@ data:
 
     ruler:
       enable_api: true
-      alertmanager_url: http://alertmanager.observability.svc.cluster.local:9093
+      alertmanager_url: http://mimir-alertmanager:8080/alertmanager/
       ring:
         kvstore:
           store: memberlist
-      rule_path: /etc/mimir/rules
+      rule_path: /data/rules
+
+      # Rule evaluation configuration
+      evaluation_interval: 30s
+      poll_interval: 15s
+      
+
+      query_frontend:
+        # GRPC listen address of the query-frontend(s). (prefixed with dns:///)
+        # 
+        address: dns://mimir-query-frontend:9095
+
+      # Tenant configuration for rule evaluation
+      tenant_federation:
+        enabled: false
 
     server:
       http_listen_port: 8080
       grpc_listen_port: 9095
+      log_level: info
+      log_format: logfmt
 
     store_gateway:
       sharding_ring:
@@ -70,7 +87,7 @@ data:
 
     frontend:
       scheduler_address: "mimir-query-scheduler:9095"
-      
+
     frontend_worker:
       scheduler_address: "mimir-query-scheduler:9095"
       frontend_address: ""
@@ -80,8 +97,45 @@ data:
       max_outstanding_requests_per_tenant: 100
       ring:
         kvstore:
-          store: memberlist   
- 
+          store: memberlist
+
+    alertmanager:
+      # Data directory - using ephemeral storage since config is in object storage
+      data_dir: /data
+
+      # How frequently to poll Alertmanager configs, default 15s
+      # Set to 900 as changes are infrequent
+      poll_interval: 900s
+
+      # External URL for Alertmanager UI
+      external_url: ${MIMIR_ALERTMANAGER_EXTERNAL_URL}
+
+      sharding_ring:
+        kvstore:
+          store: memberlist
+        replication_factor: 3
+        heartbeat_period: 5s
+        heartbeat_timeout: 1m
+
+      # Retention for resolved alerts (kept in memory/local storage)
+      retention: 120h
+
+    alertmanager_storage:
+      backend: s3
+      s3:
+        endpoint: ${S3_ENDPOINT}
+        insecure: ${S3_SECURE_CONNECT}
+        bucket_name: ${MIMIR_ALERTMANAGER_BUCKET_NAME}
+        access_key_id: ${S3_ACCESS_KEY}
+        secret_access_key: ${S3_SECRET_KEY}
+        signature_version: v4
+
     limits:
       max_query_parallelism: 16
       compactor_blocks_retention_period: 15d
+
+      alertmanager_max_config_size_bytes: 1048576
+      alertmanager_max_templates_count: 100
+      alertmanager_max_template_size_bytes: 16384
+      alertmanager_max_alerts_count: 100000
+      alertmanager_max_alerts_size_bytes: 104857600
