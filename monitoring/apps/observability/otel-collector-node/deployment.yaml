@@ -6,21 +6,24 @@ metadata:
   name: otel-collector-node
   labels:
     app: otel-collector
+    component: node
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: otel-collector-node
+      component: node
   template:
     metadata:
       labels:
         app: otel-collector-node
+        component: node
     spec:
       volumes:
         - name: otel-collector-config-node-vol
           configMap:
             name: otel-collector-config-node-template
-            defaultMode: 0444  # Read-only
+            defaultMode: 0444
         - name: targets-secret
           secret:
             secretName: node-scrape-targets
@@ -63,7 +66,7 @@ spec:
           resources:
             limits:
               cpu: 200m
-              memory: 384Mi
+              memory: 512Mi
             requests:
               cpu: 100m
               memory: 256Mi

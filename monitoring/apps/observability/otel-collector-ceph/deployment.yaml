@@ -6,15 +6,18 @@ metadata:
   name: otel-collector-ceph
   labels:
     app: otel-collector
+    component: ceph
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: otel-collector-ceph
+      component: ceph
   template:
     metadata:
       labels:
         app: otel-collector-ceph
+        component: ceph
     spec:
       containers:
       - name: otel-collector-ceph
