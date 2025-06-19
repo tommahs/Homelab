@@ -16,41 +16,26 @@ spec:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
-
     processors:
-      batch:
-        timeout: 10s
       memory_limiter:
         check_interval: 5s
         limit_mib: 2000
-      filter:
-        metrics:
-          include:
-            match_type: regexp
-            metric_names:
-              - ".*"
-
+      batch:
+        timeout: 10s
     exporters:
-      # For metrics to Mimir
       prometheusremotewrite:
         endpoint: "http://mimir-distributor.observability.svc.cluster.local:8080/api/v1/push"
         tls:
           insecure: true
-
-      # For logs to Loki
       otlphttp:
         endpoint: "http://loki-gateway.observability.svc.cluster.local:3100/otlp/v1/logs"
-
-      # For traces to Tempo
       otlp:
         endpoint: "http://tempo-distributor.observability.svc.cluster.local:4317"
         tls:
           insecure: true
-
     service:
       pipelines:
         metrics:
           receivers: [otlp]
-          processors: [memory_limiter, batch, filter]
+          processors: [memory_limiter, batch]
           exporters: [prometheusremotewrite]
-          # exporters: [otlp, logging]
