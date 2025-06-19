@@ -70,7 +70,9 @@ spec:
           network: {}
           paging: {}
           processes: {}
-          process: {}
+          process:
+            # Disable username collection to avoid /etc/passwd dependency
+            mute_process_user_error: true
           system: {}
       kubeletstats:
         collection_interval: 15s
