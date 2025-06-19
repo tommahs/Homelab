@@ -29,7 +29,7 @@ spec:
         resources:
           limits:
             cpu: 200m      # Reduced - this is just scraping
-            memory: 384Mi  # Increased slightly for buffer
+            memory: 512Mi  # Increased slightly for buffer
           requests:
             cpu: 100m      # Reduced requests
             memory: 256Mi
@@ -37,13 +37,13 @@ spec:
           httpGet:
             path: /
             port: 13133
-          initialDelaySeconds: 15  # Reduced startup time
+          initialDelaySeconds: 15
           periodSeconds: 30
           timeoutSeconds: 5
           failureThreshold: 3
         env:
         - name: GOMEMLIMIT
-          value: "300MiB"  # Aligned with memory limit
+          value: "500MiB"  # Aligned with memory limit
         - name: CEPH_METRICS_TARGET
           valueFrom:
             secretKeyRef:
@@ -61,7 +61,7 @@ spec:
       - name: otel-collector-config-ceph-vol
         configMap:
           name: otel-collector-config-ceph
-          defaultMode: 0444  # Read-only
+          defaultMode: 0444
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
