@@ -23,3 +23,8 @@ data:
       access: proxy
       url: http://tempo-query-frontend:3200
       version: 1
+    - name: Mimir-alertmanager
+      type: alertmanager
+      access: proxy
+      url: http://mimir-alertmanager:8080
+      version: 1

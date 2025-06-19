@@ -1,0 +1,15 @@
+apiVersion: 1
+contactPoints:
+    - orgId: 1
+      name: Telegram
+      receivers:
+        - uid: <longstring>
+          type: telegram
+          settings:
+            bottoken: <bot_token>
+            chatid: "<integer (can be negative value)"
+            disable_notification: false
+            disable_web_page_preview: true
+            parse_mode: None
+            protect_content: true
+          disableResolveMessage: false
