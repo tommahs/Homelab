@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: owncloud
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+  - match: Host(`cloud.example.com`)
+    kind: Rule
+    priority: 10
+    services:
+    - name: owncloud-service
+      passHostHeader: true
+      port: 80
+      responseForwarding:
+        flushInterval: 1ms
+  tls:
+    secretName: owncloud-tls

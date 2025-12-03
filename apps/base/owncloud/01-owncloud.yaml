@@ -1,0 +1,80 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: owncloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: owncloud
+  template:
+    metadata:
+      labels:
+        app: owncloud
+    spec:
+      securityContext:
+        fsGroup: 33        # ensures volume files are accessible by www-data
+        runAsUser: 33
+      containers:
+      - name: owncloud
+        image: owncloud:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: OWNCLOUD_DB_TYPE
+          valueFrom:
+            secretKeyRef:
+              name: owncloud-secret
+              key: OWNCLOUD_DB_TYPE
+        - name: OWNCLOUD_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: owncloud-secret
+              key: MYSQL_DATABASE
+        - name: OWNCLOUD_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name:  owncloud-secret
+              key: MYSQL_USER
+        - name: OWNCLOUD_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: owncloud-secret
+              key: MYSQL_PASSWORD
+        - name: OWNCLOUD_DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: owncloud-secret
+              key: OWNCLOUD_DB_HOST
+        - name: OWNCLOUD_REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: owncloud-secret
+              key: OWNCLOUD_REDIS_HOST
+        - name: OWNCLOUD_REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: owncloud-secret
+              key: OWNCLOUD_REDIS_PORT
+        volumeMounts:
+        - name: owncloud-data
+          mountPath: /var/www/html/data
+      volumes:
+      - name: owncloud-data
+        persistentVolumeClaim:
+          claimName: owncloud-data-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: owncloud-service
+spec:
+  selector:
+    app: owncloud
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP

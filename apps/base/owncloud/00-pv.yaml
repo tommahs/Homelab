@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: owncloud-data-pv
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: owncloud-data-storage
+  nfs:
+    path: filepathOnServer
+    server: nameOrIpOfNFSServer
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: owncloud-db-pv
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: owncloud-db-storage
+  nfs:
+    path: filepathOnServer
+    server: nameOrIpOfNFSServer
+  mountOptions:
+    - hard
+    - nfsvers=4.1

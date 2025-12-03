@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: owncloud-tls
+  namespace: owncloud
+spec:
+  secretName: owncloud-tls
+  dnsNames:
+    - owncloud.example.com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

@@ -1,0 +1,72 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: owncloud
+
+resources:
+  - 00-pv.yaml
+  - 00-pvc.yaml
+  - 01-mariadb.yaml
+  - 01-redis.yaml
+  - 01-owncloud.yaml
+  - 09-traefik.yaml
+  - 00-owncloud-secret.yaml
+  - 10-ingress-middleware.yaml
+  - 10-certificate.yaml
+replacements:
+- source:
+    kind: Secret
+    name: owncloud-secret
+    fieldPath: stringData.NFS_PATH
+  targets:
+  - select:
+      kind: PersistentVolume
+      name: owncloud-data-pv
+    fieldPaths:
+    - spec.nfs.path
+
+- source:
+    kind: Secret
+    name: owncloud-secret
+    fieldPath: stringData.NFS_PATH_DB
+  targets:
+  - select:
+      kind: PersistentVolume
+      name: owncloud-db-pv
+    fieldPaths:
+    - spec.nfs.path
+- source:
+    kind: Secret
+    name: owncloud-secret
+    fieldPath: stringData.NFS_SERVER
+  targets:
+  - select:
+      kind: PersistentVolume
+      name: owncloud-data-pv
+    fieldPaths:
+    - spec.nfs.server
+  - select:
+      kind: PersistentVolume
+      name: owncloud-db-pv
+    fieldPaths:
+    - spec.nfs.server
+
+- source:
+    kind: Secret
+    name: owncloud-secret
+    fieldPath: stringData.OWNCLOUD_ENDPOINT
+  targets:
+  - select:
+      kind: IngressRoute
+      name: owncloud
+    fieldPaths:
+    - spec.routes.0.match
+    options:
+      delimiter: "`"
+      index: 1
+
+  - select:
+      kind: Certificate
+      name: owncloud-tls
+    fieldPaths:
+      - spec.dnsNames.0
+
