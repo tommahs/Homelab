@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openldap-schema
+  namespace: trinityid
+data:
+  custom-schema.ldif: |
+    # Custom LDAP schema extensions (if needed)
+    # Add additional schema definitions here

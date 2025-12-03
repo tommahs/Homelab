@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: trinityid
+
+resources:
+  - 00-namespace.yaml
+  - 01-secret_template.yaml
+  - 02-configmap.yaml
+  - 03-postgres-configmap.yaml
+  - 03-postgres-secret.yaml
+  - 04-postgres-pvc.yaml
+  - 04-postgres-deployment.yaml
+  - 05-postgres-service.yaml
+  - 06-pvc.yaml
+  - 07-deployment.yaml
+  - 08-python-config.yaml
+  - 08-nginx-config.yaml
+  - 09-service.yaml
+  - 10-ingress-route.yaml
+  - 10-ingress-middleware.yaml
+  - 11-certificate.yaml
+  - 12-serviceaccount.yaml
+
+commonLabels:
+  app.kubernetes.io/name: privacyidea
+  app.kubernetes.io/component: identity-management
+  app.kubernetes.io/part-of: trinityid
+
+commonAnnotations:
+  app.kubernetes.io/managed-by: kustomize

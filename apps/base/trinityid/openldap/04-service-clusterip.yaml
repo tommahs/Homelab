@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  namespace: trinityid
+  labels:
+    app: openldap
+    component: ldap
+spec:
+  type: ClusterIP
+  selector:
+    app: openldap
+  ports:
+    - name: ldap
+      port: 389
+      protocol: TCP
+      targetPort: 389
+    - name: ldaps
+      port: 636
+      protocol: TCP
+      targetPort: 636

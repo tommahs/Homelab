@@ -1,0 +1,163 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: trinityid
+  labels:
+    app: keycloak
+    component: oidc
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+        component: oidc
+    spec:
+      serviceAccountName: keycloak
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:23.0
+        imagePullPolicy: IfNotPresent
+        command:
+          - /opt/keycloak/bin/kc.sh
+          - start
+          - --optimized
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: https
+          containerPort: 8443
+          protocol: TCP
+        env:
+        - name: KC_DB
+          value: "postgres"
+        - name: KC_DB_URL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_DB_URL_HOST
+        - name: KC_DB_URL_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_DB_URL_PORT
+        - name: KC_DB_URL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_DB_URL_DATABASE
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secrets
+              key: KC_DB_USERNAME
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secrets
+              key: KC_DB_PASSWORD
+        - name: KEYCLOAK_ADMIN
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KEYCLOAK_ADMIN
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secrets
+              key: KC_ADMIN_PASSWORD
+        - name: KC_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_HOSTNAME
+        - name: KC_HOSTNAME_STRICT
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_HOSTNAME_STRICT
+        - name: KC_PROXY
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_PROXY
+        - name: KC_LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_LOG_LEVEL
+        - name: LDAP_PROVIDER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: LDAP_PROVIDER_URL
+        - name: LDAP_BASE_DN
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: LDAP_BASE_DN
+        - name: LDAP_USERS_DN
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: LDAP_USERS_DN
+        - name: LDAP_BIND_DN
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: LDAP_BIND_DN
+        - name: LDAP_BIND_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secrets
+              key: LDAP_BIND_PASSWORD
+        - name: KC_CACHE
+          value: "ispn"
+        - name: KC_CACHE_CONFIG_FILE
+          value: "cache-ispn-jdbc-ping.xml"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - keycloak
+              topologyKey: kubernetes.io/hostname

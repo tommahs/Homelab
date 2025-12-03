@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-config
+  namespace: trinityid
+data:
+  # Database configuration
+  DB_TYPE: "postgres"
+  DB_HOST: "privacyidea-postgres.trinityid.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "privacyidea"
+  
+  # LDAP configuration for user backend
+  LDAP_HOST: "openldap.trinityid.svc.cluster.local"
+  LDAP_PORT: "389"
+  LDAP_BASE_DN: "dc=example,dc=local"
+  LDAP_ADMIN_DN: "cn=admin,dc=example,dc=local"
+  LDAP_FILTER: "(&(objectClass=person)(uid=%s))"
+  
+  # PrivacyIDEA realm configuration
+  REALM: "PrivacyIDEA"
+  TIMEZONE: "UTC"
+  
+  # Keycloak integration
+  KEYCLOAK_URL: "https://keycloak.example.local"
+  KEYCLOAK_REALM: "master"
+  
+  # PrivacyIDEA server configuration
+  PI_LOGLEVEL: "INFO"
+  PI_LOGFILE: "/var/log/privacyidea/privacyidea.log"
+  
+  # Email configuration (optional)
+  MAIL_SERVER: "smtp.example.local"
+  MAIL_PORT: "587"
+  MAIL_USE_TLS: "true"
+  MAIL_FROM: "privacyidea@example.local"
+  
+  # Audit log configuration
+  AUDIT_LOG_DIR: "/var/log/privacyidea/audit"
+  
+  # Security settings
+  PI_LOGO: "privacyidea.png"
+  PI_CUSTOM_CSS: "custom.css"
+  
+  # Token configuration
+  PI_DEFAULT_TOKENTYPE: "HOTP"
+  PI_OTP_QRCODE_URL: "https://privacyidea.example.local/qrcode"

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-nfs-pvc
+  namespace: trinityid
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-trinityid
+  resources:
+    requests:
+      storage: 500Gi

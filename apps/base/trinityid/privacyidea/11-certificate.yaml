@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: privacyidea-tls
+  namespace: trinityid
+spec:
+  secretName: privacyidea-tls
+  duration: 2160h  # 90 days
+  renewBefore: 360h  # 15 days
+  commonName: privacyidea.example.local
+  dnsNames:
+  - privacyidea.example.local
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
