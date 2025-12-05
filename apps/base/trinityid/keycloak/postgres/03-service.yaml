@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: trinityid
+  labels:
+    app: postgres
+    component: database
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - name: postgresql
+      port: 5432
+      protocol: TCP
+      targetPort: 5432

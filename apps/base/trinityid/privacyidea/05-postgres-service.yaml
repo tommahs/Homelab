@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: privacyidea-postgres
+  namespace: trinityid
+  labels:
+    app: privacyidea-postgres
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: postgres
+    protocol: TCP
+    name: postgres
+  selector:
+    app: privacyidea-postgres

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-postgres-config
+  namespace: trinityid
+data:
+  POSTGRES_DB: "privacyidea"
+  POSTGRES_USER: "privacyidea"

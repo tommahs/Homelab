@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-config
+  namespace: trinityid
+data:
+  KC_DB: "postgres"
+  KC_DB_URL_HOST: "postgres.trinityid.svc.cluster.local"
+  KC_DB_URL_PORT: "5432"
+  KC_DB_URL_DATABASE: "keycloak"
+  KC_HOSTNAME: "keycloak.example.local"
+  KC_HOSTNAME_STRICT: "true"
+  KC_PROXY: "passthrough"
+  KC_LOG_LEVEL: "INFO"
+  KEYCLOAK_ADMIN: "admin"
+  LDAP_PROVIDER_URL: "ldap://openldap.trinityid.svc.cluster.local:389"
+  LDAP_BASE_DN: "dc=example,dc=local"
+  LDAP_USERS_DN: "ou=people,dc=example,dc=local"
+  LDAP_BIND_DN: "cn=admin,dc=example,dc=local"

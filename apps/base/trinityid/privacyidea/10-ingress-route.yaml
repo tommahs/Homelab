@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: privacyidea
+  namespace: trinityid
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`privacyidea.example.local`)
+    kind: Rule
+    services:
+    - name: privacyidea
+      port: 443
+      scheme: https
+    middlewares:
+    - name: privacyidea-headers
+      namespace: trinityid
+  tls:
+    secretName: privacyidea-tls

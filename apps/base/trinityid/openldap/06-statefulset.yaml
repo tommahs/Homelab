@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: openldap
+  namespace: trinityid
+  labels:
+    app: openldap
+    component: ldap
+spec:
+  serviceName: openldap-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: openldap
+  template:
+    metadata:
+      labels:
+        app: openldap
+        component: ldap
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - openldap
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: openldap
+          image: osixia/openldap:1.5.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: ldap
+              containerPort: 389
+              protocol: TCP
+            - name: ldaps
+              containerPort: 636
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: openldap-config
+            - secretRef:
+                name: openldap-secrets
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/ldap
+            - name: config
+              mountPath: /etc/ldap/slapd.d
+            - name: schema
+              mountPath: /container/service/slapd/assets/config/bootstrap/schema/custom
+              readOnly: true
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - ldapwhoami -x -H ldap://localhost -D cn=admin,$(echo $LDAP_BASE_DN) -w $LDAP_ADMIN_PASSWORD
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - ldapwhoami -x -H ldap://localhost -D cn=admin,$(echo $LDAP_BASE_DN) -w $LDAP_ADMIN_PASSWORD
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: schema
+          configMap:
+            name: openldap-schema
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-trinityid
+        resources:
+          requests:
+            storage: 50Gi
+    - metadata:
+        name: config
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-trinityid
+        resources:
+          requests:
+            storage: 5Gi

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: trinityid
+  labels:
+    app: postgres
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        component: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgresql
+              containerPort: 5432
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+            - secretRef:
+                name: postgres-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U keycloak
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U keycloak
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data

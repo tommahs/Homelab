@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-python-config
+  namespace: trinityid
+data:
+  config.py: |
+    import os
+    from datetime import timedelta
+    
+    # Flask configuration
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'secret-key-changeme')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Database configuration
+    SQLALCHEMY_DATABASE_URI = (
+        f"{os.environ.get('DB_TYPE', 'postgresql')}://"
+        f"{os.environ.get('DB_USERNAME', 'privacyidea')}:"
+        f"{os.environ.get('DB_PASSWORD', 'password')}@"
+        f"{os.environ.get('DB_HOST', 'localhost')}:"
+        f"{os.environ.get('DB_PORT', '5432')}/"
+        f"{os.environ.get('DB_NAME', 'privacyidea')}"
+    )
+    
+    # LDAP configuration
+    LDAP_SERVER = os.environ.get('LDAP_HOST', 'openldap.trinityid.svc.cluster.local')
+    LDAP_PORT = int(os.environ.get('LDAP_PORT', 389))
+    LDAP_BIND_DN = os.environ.get('LDAP_BIND_DN', 'cn=admin,dc=example,dc=local')
+    LDAP_BIND_PASSWORD = os.environ.get('LDAP_BIND_PASSWORD', 'password')
+    LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN', 'dc=example,dc=local')
+    LDAP_FILTER = os.environ.get('LDAP_FILTER', '(&(objectClass=person)(uid=%s))')
+    
+    # Security settings
+    PI_LOGLEVEL = os.environ.get('PI_LOGLEVEL', 'INFO')
+    PI_LOGFILE = os.environ.get('PI_LOGFILE', '/var/log/privacyidea/privacyidea.log')
+    PI_HSM = False
+    PI_AUDIT_LOG_DIR = os.environ.get('AUDIT_LOG_DIR', '/var/log/privacyidea/audit')
+    
+    # Token and OTP settings
+    PI_DEFAULT_TOKENTYPE = os.environ.get('PI_DEFAULT_TOKENTYPE', 'HOTP')
+    PI_OTP_QRCODE_URL = os.environ.get('PI_OTP_QRCODE_URL', 'https://privacyidea.example.local/qrcode')
+    
+    # Email configuration
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.example.local')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'privacyidea@example.local')
+    MAIL_FROM = os.environ.get('MAIL_FROM', 'privacyidea@example.local')
+    
+    # Session configuration
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # Realm configuration
+    REALM = os.environ.get('REALM', 'PrivacyIDEA')
+    
+    # Keycloak integration
+    KEYCLOAK_URL = os.environ.get('KEYCLOAK_URL', 'https://keycloak.example.local')
+    KEYCLOAK_REALM = os.environ.get('KEYCLOAK_REALM', 'master')
+    KEYCLOAK_CLIENT_ID = os.environ.get('KEYCLOAK_CLIENT_ID', 'privacyidea')
+    KEYCLOAK_CLIENT_SECRET = os.environ.get('KEYCLOAK_CLIENT_SECRET', 'secret')

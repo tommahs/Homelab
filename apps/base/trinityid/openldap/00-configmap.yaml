@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openldap-config
+  namespace: trinityid
+data:
+  LDAP_ORGANISATION: "Example Organization"
+  LDAP_DOMAIN: "example.local"
+  LDAP_BASE_DN: "dc=example,dc=local"
+  LDAP_LOG_LEVEL: "256"
+  LDAP_READONLY_USER: "false"
+  LDAP_REPLICATION: "true"
+  LDAP_REPLICATION_USER: "replicator"
+  # Cluster-internal LDAP hostname
+  LDAP_CLUSTER_FQDN: "openldap.trinityid.svc.cluster.local"
