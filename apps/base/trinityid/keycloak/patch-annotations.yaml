@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-config
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-secret
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: keycloak-postgres
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-postgres
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-postgres-secret
+  annotations:
+    app.kubernetes.io/managed-by: kustomize

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: privacyidea
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: privacyidea
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-config
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-python-config
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-nginx-config
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: privacyidea-secrets
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: privacyidea-data-pvc
+  annotations:
+    app.kubernetes.io/managed-by: kustomize

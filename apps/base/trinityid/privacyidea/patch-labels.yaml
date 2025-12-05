@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: privacyidea
+  labels:
+    app.kubernetes.io/name: privacyidea
+    app.kubernetes.io/component: identity-management
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: privacyidea
+  labels:
+    app.kubernetes.io/name: privacyidea
+    app.kubernetes.io/component: identity-management
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-config
+  labels:
+    app.kubernetes.io/name: privacyidea
+    app.kubernetes.io/component: identity-management
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-python-config
+  labels:
+    app.kubernetes.io/name: privacyidea
+    app.kubernetes.io/component: identity-management
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: privacyidea-nginx-config
+  labels:
+    app.kubernetes.io/name: privacyidea
+    app.kubernetes.io/component: identity-management
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: privacyidea-secrets
+  labels:
+    app.kubernetes.io/name: privacyidea
+    app.kubernetes.io/component: identity-management
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: privacyidea-data-pvc
+  labels:
+    app.kubernetes.io/name: privacyidea
+    app.kubernetes.io/component: identity-management
+    app.kubernetes.io/part-of: trinityid

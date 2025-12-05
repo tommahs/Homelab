@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-config
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-secret
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: keycloak-postgres
+  labels:
+    app.kubernetes.io/name: keycloak-postgres
+    app.kubernetes.io/component: db
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-postgres
+  labels:
+    app.kubernetes.io/name: keycloak-postgres
+    app.kubernetes.io/component: db
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-postgres-secret
+  labels:
+    app.kubernetes.io/name: keycloak-postgres
+    app.kubernetes.io/component: db
+    app.kubernetes.io/part-of: trinityid

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: openldap
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap-headless
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openldap-config
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openldap-secret
+  annotations:
+    app.kubernetes.io/managed-by: kustomize

@@ -22,10 +22,13 @@ resources:
   - 11-certificate.yaml
   - 12-serviceaccount.yaml
 
-commonLabels:
-  app.kubernetes.io/name: privacyidea
-  app.kubernetes.io/component: identity-management
-  app.kubernetes.io/part-of: trinityid
+ # Keep existing resource filenames; ensure they exist in this folder before applying.
 
-commonAnnotations:
-  app.kubernetes.io/managed-by: kustomize
+# NOTE: labels and annotations are intentionally not set globally here.
+# If you prefer to add labels/annotations to every resource, create a
+# patch file and include it under `patchesStrategicMerge` instead of
+# using `commonLabels`/`commonAnnotations`.
+
+patchesStrategicMerge:
+  - patch-labels.yaml
+  - patch-annotations.yaml

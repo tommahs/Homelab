@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: trinityid-backup
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: trinityid-backup-pvc
+  annotations:
+    app.kubernetes.io/managed-by: kustomize
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trinityid-backup-secret
+  annotations:
+    app.kubernetes.io/managed-by: kustomize

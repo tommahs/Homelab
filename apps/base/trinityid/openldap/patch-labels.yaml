@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: openldap
+  labels:
+    app.kubernetes.io/name: openldap
+    app.kubernetes.io/component: identity-backend
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  labels:
+    app.kubernetes.io/name: openldap
+    app.kubernetes.io/component: identity-backend
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap-headless
+  labels:
+    app.kubernetes.io/name: openldap
+    app.kubernetes.io/component: identity-backend
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openldap-config
+  labels:
+    app.kubernetes.io/name: openldap
+    app.kubernetes.io/component: identity-backend
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openldap-secret
+  labels:
+    app.kubernetes.io/name: openldap
+    app.kubernetes.io/component: identity-backend
+    app.kubernetes.io/part-of: trinityid

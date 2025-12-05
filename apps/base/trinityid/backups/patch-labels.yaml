@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: trinityid-backup
+  labels:
+    app.kubernetes.io/name: trinityid-backup
+    app.kubernetes.io/component: backups
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: trinityid-backup-pvc
+  labels:
+    app.kubernetes.io/name: trinityid-backup
+    app.kubernetes.io/component: backups
+    app.kubernetes.io/part-of: trinityid
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trinityid-backup-secret
+  labels:
+    app.kubernetes.io/name: trinityid-backup
+    app.kubernetes.io/component: backups
+    app.kubernetes.io/part-of: trinityid
