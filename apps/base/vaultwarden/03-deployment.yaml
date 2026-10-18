@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: vaultwarden
-          image: vaultwarden/server:1.32.7-alpine
+          image: vaultwarden/server:1.37.0-alpine
           ports:
             - containerPort: 80
           volumeMounts:
