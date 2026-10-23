@@ -38,3 +38,7 @@ terraform.rc
 .qodo
 .terraform.lock.hcl
 variables.tf
+
+# Secrets.yaml
+secrets.yaml
+*secrets.yaml

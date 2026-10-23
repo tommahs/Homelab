@@ -1,0 +1,9 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 01-persistent-volume.yaml
+  - 02-persistent-volume-claim.yaml
+  - 03-deployment.yaml
+  - 04-service.yaml

@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-postgres-pv
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: immich-postgres-storage
+  nfs:
+    server: 192.168.122.1
+    path: /data/nfs/immich-postgres
+  mountOptions:
+    - hard
+    - nfsvers=4.1
