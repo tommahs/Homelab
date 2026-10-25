@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mealie-data
+  namespace: mealie
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: mealie-data-storage
+  volumeName: mealie-data
+  resources:
+    requests:
+      storage: 20Gi
