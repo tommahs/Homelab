@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mealie-data
+  namespace: mealie
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: mealie-data-storage
+  nfs:
+    path: /data/nfs/mealie/mealie-data
+    server: 192.168.122.1
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mealie-sqlite-backup
+  namespace: mealie
+spec:
+  capacity:
+    storage: 50Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: mealie-sqlite-backup
+  nfs:
+    path: /data/nfs/mealie/sqlite-backup
+    server: 192.168.122.1
+  mountOptions:
+    - hard
+    - nfsvers=4.1

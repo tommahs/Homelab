@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mealie
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mealie
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mealie
+    spec:
+      containers:
+        - name: mealie
+          image: ghcr.io/mealie-recipes/mealie:v3.28.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 9000
+
+          env:
+            - name: BASE_URL
+              value: "https://mealie.example.com"
+            - name: TZ
+              value: "Europe/Stockholm"
+            - name: PUID
+              value: "911"
+            - name: PGID
+              value: "911"
+            - name: ALLOW_SIGNUP
+              value: "false"
+            - name: DEFAULT_GROUP
+              value: "Home"
+            - name: DEFAULT_HOUSEHOLD
+              value: "Family"
+
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mealie-data
